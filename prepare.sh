@@ -1,7 +1,12 @@
 #!/usr/bin/bash
 
 git submodule update --init --recursive
+git submodule foreach --recursive '
+  default_branch=$(git remote show origin | grep "HEAD branch" | awk "{print \$NF}");
+  git checkout $default_branch && git pull origin $default_branch || echo "Branch not found for submodule: $(pwd)";
+'
 pip install torch==2.3.1 torchvision==0.18.1 --index-url https://download.pytorch.org/whl/cu121
+# conda install pytorch==2.4.0 torchvision==0.19.0 torchaudio==2.4.0 pytorch-cuda=12.4 -c pytorch -c nvidia
 pip install -e motion_capture
 pip install -U "setuptools<70"
 export FORCE_CUDA=1

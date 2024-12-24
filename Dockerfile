@@ -2,7 +2,8 @@ FROM nvidia/cuda:12.1.1-cudnn8-devel-ubuntu20.04
 ENV DEBIAN_FRONTEND=noninteractive
 RUN rm /etc/apt/sources.list.d/cuda.list
 
-RUN echo 'Etc/UTC' > /etc/timezone && \
+RUN chmod 1777 /tmp && \
+    echo 'Etc/UTC' > /etc/timezone && \
     ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
     apt-get update && \
     apt-get install -q -y --no-install-recommends tzdata && \
@@ -118,5 +119,16 @@ RUN rm -rf ~/catkin_ws/src/mocap_ros/node_scripts
 #########################################
 RUN touch ~/.bashrc
 RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
+
+RUN cp /home/user/catkin_ws/src/mocap_ros/motion_capture/third_party/frankmocap/detectors/hand_object_detector/lib/hand_object_detector/ /home/user/catkin_ws/src/mocap_ros/motion_capture/third_party/frankmocap/detectors/hand_object_detector/lib/model/ -r
+
+RUN cd /home/user/catkin_ws/src/mocap_ros/motion_capture/third_party/hamer/ &&\
+    bash fetch_demo_data.sh
+
+RUN sed -i '283s/__C.POOLING_MODE = '\''crop'\''/__C.POOLING_MODE = '\''pool'\''/' \
+    /home/user/catkin_ws/src/mocap_ros/motion_capture/third_party/frankmocap/detectors/hand_object_detector/lib/hand_object_detector/utils/config.py
+
+
+RUN pip install networkx==3.1
 
 CMD ["bash"]

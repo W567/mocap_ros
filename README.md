@@ -48,6 +48,11 @@ You can run on docker by
     device:=cuda:0 \
     with_mocap:=true
 ```
+
+```
+./run_docker -host localhost -launch hand_mocap.launch input_image:=/camera/color/image_rect_color input_depth:=/camera/aligned_depth_to_color/image_raw camera_info:=/camera/color/camera_info
+```
+
 where
 - `-host` : hostname like `pr1040` or `localhost`
 - `-launch` : launch file name to run

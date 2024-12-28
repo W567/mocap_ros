@@ -73,7 +73,7 @@ class DetectionNode(object):
                 self.mocap_config = {
                     "render_type": rospy.get_param("~render_type", "opengl"),  # pytorch3d, opendr, opengl
                     "img_size": self.img_size,
-                    "visualize": rospy.get_param("~visualize", True),
+                    "visualize": self.with_visualize,
                     "device": self.device,
                 }
                 self.keypoint_names = MANO_KEYPOINT_NAMES

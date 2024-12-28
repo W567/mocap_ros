@@ -35,7 +35,7 @@ docker build -t mocap_ros .
 ## Usage
 ### 1. run directly
 ```bash
-roslaunch mocap_ros hand_mocap.launch \
+roslaunch mocap_ros hand_mocap_original.launch \
     input_image:=/kinect_head/rgb/image_rect_color \
     device:=cuda:0 \
     with_mocap:=true
@@ -43,7 +43,7 @@ roslaunch mocap_ros hand_mocap.launch \
 ### 2. using docker
 You can run on docker by
 ```bash
-./run_docker -host pr1040 -launch hand_mocap.launch \
+./run_docker -host pr1040 -launch hand_mocap_original.launch \
     input_image:=/kinect_head/rgb/image_rect_color \
     device:=cuda:0 \
     with_mocap:=true
@@ -71,3 +71,25 @@ launch args below.
 
 ### TODO
 add rostest and docker build test.
+
+
+### Realsense:
+
+```bash
+./run_docker -host localhost -launch hand_mocap_original.launch input_image:=/camera/color/image_rect_color input_depth:=/camera/aligned_depth_to_color/image_raw camera_info:=/camera/color/camera_info track_3d:=false detector_model:=mediapipe_hand visualize:=true with_mocap:=true decompress:=false threshold:=0.95 margin:=20
+```
+
+### astra camera:
+
+```bash
+./run_docker -host localhost -launch hand_mocap_original.launch input_image:=/camera/color/image_raw input_depth:=/camera/depth/image_raw camera_info:=/camera/color/camera_info track_3d:=false detector_model:=mediapipe_hand visualize:=true with_mocap:=true decompress:=false threshold:=0.95 margin:=20
+```
+
+
+### new launch file:
+
+Use camera_type to choose which camera to use. (astra or realsense or kinect)
+Corresponding topics are set in the launch file based on the camera type.
+```bash
+/run_docker -host localhost -launch hand_mocap.launch camera_type:=astra detector_model:=mediapipe_hand visualize:=false with_mocap:=true threshold:=0.95 margin:=20
+```

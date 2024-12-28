@@ -105,6 +105,10 @@ class DetectionNode(object):
         self.bridge = CvBridge()
         self.init_model()
         self.sub = rospy.Subscriber("~input_image", Image, self.callback_image, queue_size=1, buff_size=2**24)
+
+        self.depth_sub = rospy.Subscriber("~input_depth", Image, self.callback_depth, queue_size=1, buff_size=2 ** 24)
+        self.depth_image = None
+
         self.pub_debug_image = rospy.Publisher("~debug_image", Image, queue_size=1)
         self.pub_detections = rospy.Publisher("~detections", DetectionArray, queue_size=1)
         if self.with_mocap:

@@ -84,7 +84,7 @@ class DetectionNode(object):
                     "focal_length": self.camera_model.fx(),
                     "rescale_factor": rospy.get_param("~rescale_factor", 2.0),
                     "img_size": self.img_size,
-                    "visualize": rospy.get_param("~visualize", True),
+                    "visualize": self.with_visualize,
                     "device": self.device,
                 }
                 self.keypoint_names = MANO_KEYPOINT_NAMES

@@ -206,9 +206,10 @@ class DetectionNode(object):
             mocap_array = MocapArray()
 
         # Publish visualization
-        vis_msg = self.bridge.cv2_to_imgmsg(visualization.astype(np.uint8), encoding="bgr8")
-        vis_msg.header = msg.header
-        self.pub_debug_image.publish(vis_msg)
+        if self.with_visualize:
+            vis_msg = self.bridge.cv2_to_imgmsg(visualization.astype(np.uint8), encoding="bgr8")
+            vis_msg.header = msg.header
+            self.pub_debug_image.publish(vis_msg)
 
         # Publish tf
         if self.publish_tf and self.with_mocap:

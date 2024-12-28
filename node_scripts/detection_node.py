@@ -68,6 +68,7 @@ class DetectionNode(object):
         self.with_mocap = rospy.get_param("~with_mocap", True)
         if self.with_mocap:
             self.mocap = rospy.get_param("~mocap_model", "hamer")  # frankmocap_hand, hamer, 4d-human
+            self.with_visualize = rospy.get_param("~visualize", True)
             if self.mocap == "frankmocap_hand":
                 self.mocap_config = {
                     "render_type": rospy.get_param("~render_type", "opengl"),  # pytorch3d, opendr, opengl

@@ -232,6 +232,7 @@ class DetectionNode(object):
                         mocap.detection.label + "/" + self.keypoint_names[0],
                         msg.header.frame_id,
                     )
+                    # publish finger bone pose in the camera frame
                     for bone_name in mocap.skeleton.bone_names:
                         parent_name = bone_name.split("->")[0]
                         child_name = bone_name.split("->")[1]

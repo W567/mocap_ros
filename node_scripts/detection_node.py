@@ -5,7 +5,7 @@ import rospy
 import numpy as np
 import tf
 from scipy.spatial.transform import Rotation as R
-from cv_bridge import CvBridge
+from cv_bridge import CvBridge, CvBridgeError
 from image_geometry import PinholeCameraModel
 from sensor_msgs.msg import Image, CameraInfo
 from geometry_msgs.msg import Point, Pose, Quaternion
@@ -34,6 +34,11 @@ class DetectionNode(object):
         self.camera_model = PinholeCameraModel()
         self.camera_model.fromCameraInfo(self.camera_info)
         self.img_size = (self.camera_info.width, self.camera_info.height)
+
+        self.camera_scale = rospy.get_param("~scale", 0.001)
+
+        self.wrist_a = rospy.get_param("~wrist_a", 0.03)
+        self.wrist_b = rospy.get_param("~wrist_b", 0.02)
 
         if self.publish_tf:
             self.tf_broadcaster = tf.TransformBroadcaster()
@@ -218,12 +223,60 @@ class DetectionNode(object):
         if self.publish_tf and self.with_mocap:
             for mocap in mocap_array.mocaps:
                 try:
-                    # publish pose in the camera frame
+                    # predicted wrist pose in the camera frame
+                    point_3d = (
+                        mocap.pose.position.x,
+                        mocap.pose.position.y,
+                        mocap.pose.position.z,
+                    )
+                    # pixel coordinates of the wrist
+                    point_2d = self.camera_model.project3dToPixel(point_3d)
+                    # clip
+                    point_2d = (
+                        min(max(point_2d[0], 0), self.depth_image.shape[1] - 1),
+                        min(max(point_2d[1], 0), self.depth_image.shape[0] - 1),
+                    )
+                    depth = self.depth_image[int(point_2d[1]), int(point_2d[0])]
+                    # TODO what if with large translation, how about keep the previous value when occluded
+                    if np.isnan(depth) or (depth == 0.0):
+                        continue
+
+                    # Calculate 3D coordinates in the camera frame
+                    x_cam = (point_2d[0] - self.camera_model.cx()) * depth / self.camera_model.fx() * self.camera_scale
+                    y_cam = (point_2d[1] - self.camera_model.cy()) * depth / self.camera_model.fy() * self.camera_scale
+                    z_cam = depth * self.camera_scale
+
+                    wrist_quat = np.array([mocap.pose.orientation.x, mocap.pose.orientation.y, mocap.pose.orientation.z, mocap.pose.orientation.w])
+                    wrist_rot = R.from_quat(wrist_quat).as_matrix()
+
+                    # TODO egocentric or third person view should have different cross section
+                    wrist_y_yoz = np.array([0, wrist_rot[1, 1], wrist_rot[2, 1]])
+                    wrist_y_yoz /= np.linalg.norm(wrist_y_yoz)
+
+                    wrist_z_yoz = np.array([0, wrist_rot[1, 2], wrist_rot[2, 2]])
+                    wrist_z_yoz /= np.linalg.norm(wrist_z_yoz)
+
+                    orig_forward = np.array([0, 0, 1])
+                    intersection_angle = np.arccos(np.abs(np.dot(wrist_z_yoz, orig_forward)))
+                    view_k = np.tan(intersection_angle)
+                    wrist_k = -1.0 / view_k
+
+                    x0 = np.sqrt(self.wrist_a**4 * wrist_k**2 / (self.wrist_a**2 * wrist_k**2 + self.wrist_b**2))
+                    y0 = -self.wrist_b**2 * x0 / (self.wrist_a**2 * wrist_k)
+
+                    if np.dot(orig_forward, wrist_z_yoz) < 0:
+                        x0 = -x0
+                    if np.dot(orig_forward, wrist_y_yoz) < 0:
+                        y0 = -y0
+
+                    wrist_cam_orig = np.array([x_cam, y_cam, z_cam])
+                    wrist_cam = wrist_cam_orig + wrist_rot @ np.array([0, y0, x0])
+
                     self.tf_broadcaster.sendTransform(
                         (
-                            mocap.pose.position.x,
-                            mocap.pose.position.y,
-                            mocap.pose.position.z,
+                            wrist_cam[0],
+                            wrist_cam[1],
+                            wrist_cam[2],
                         ),
                         (
                             mocap.pose.orientation.x,

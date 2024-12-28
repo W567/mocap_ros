@@ -26,6 +26,8 @@ from motion_capture.utils.utils import (
 
 class DetectionNode(object):
     def __init__(self):
+        self.mocap_model = None
+        self.detection_model = None
         self.device = rospy.get_param("~device", "cuda:0")
         self.publish_tf = rospy.get_param("~publish_tf", True)
         self.camera_info = rospy.wait_for_message("~camera_info", CameraInfo)

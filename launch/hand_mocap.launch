@@ -14,6 +14,9 @@
   <arg name="publish_tf" default="true" />
   <arg name="visualize" default="true" /> <!-- visualization. set false if you want to speed up -->
 
+  <arg name="wrist_a" default="0.0295" /> <!-- length of cross section ellipse of the wrist (meter) -->
+  <arg name="wrist_b" default="0.0205" />
+
   <group if="$(eval camera_type == 'kinect')">
     <arg name="input_image" default="/kinect_head/rgb/image_rect_color"/>
     <arg name="input_depth" default="/kinect_head/depth_registered/image_rect"/>

@@ -110,6 +110,8 @@
         rescale_factor: $(arg rescale_factor)
         margin: $(arg margin)
         scale: $(arg depth_scale)
+        wrist_a: $(arg wrist_a)
+        wrist_b: $(arg wrist_b)
     </rosparam>
     </node>
   </group>

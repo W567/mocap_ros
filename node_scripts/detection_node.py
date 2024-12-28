@@ -126,6 +126,16 @@ class DetectionNode(object):
                 model_config=self.mocap_config,
             )
 
+    def callback_depth(self, msg):
+        try:
+            # Convert the depth image to a Numpy array
+            cv_image = self.bridge.imgmsg_to_cv2(msg, "16UC1")
+        except CvBridgeError as e:
+            rospy.logerr(e)
+            cv_image = None
+
+        self.depth_image = cv_image
+
     def callback_image(self, msg):
         image = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
         detections, visualization = self.detection_model.predict(image)

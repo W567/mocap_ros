@@ -137,6 +137,9 @@ class DetectionNode(object):
         self.depth_image = cv_image
 
     def callback_image(self, msg):
+        if self.depth_image is None:
+            rospy.logwarn("Depth image is not received yet.")
+            return
         image = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
         detections, visualization = self.detection_model.predict(image)
 

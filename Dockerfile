@@ -131,4 +131,7 @@ RUN sed -i '283s/__C.POOLING_MODE = '\''crop'\''/__C.POOLING_MODE = '\''pool'\''
 
 RUN pip install networkx==3.1
 
+# TODO have to remove this
+COPY motion_capture/motion_capture/mocap/mocap_wrapper.py /home/user/catkin_ws/src/mocap_ros/motion_capture/motion_capture/mocap/mocap_wrapper.py
+
 CMD ["bash"]

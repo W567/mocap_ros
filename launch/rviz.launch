@@ -1,0 +1,9 @@
+<launch>
+  <arg name="type" default="hand" /> <!-- [hand, mocap, wholebody] -->
+
+  <node
+    name="rviz"
+    pkg="rviz"
+    type="rviz"
+    args="-d $(find mocap_ros)/rviz/$(arg type).rviz" required="true" />
+</launch>

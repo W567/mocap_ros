@@ -202,6 +202,8 @@ class DetectionNode(object):
                 )
                 mocap_array.mocaps[i].skeleton = skeleton
             self.pub_mocaps.publish(mocap_array)
+        else:
+            mocap_array = MocapArray()
 
         # Publish visualization
         vis_msg = self.bridge.cv2_to_imgmsg(visualization.astype(np.uint8), encoding="bgr8")

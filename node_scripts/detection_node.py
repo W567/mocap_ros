@@ -24,6 +24,15 @@ from motion_capture.utils.utils import (
 )
 
 
+def angle_between_planes(normal1, normal2):
+    dot_product = np.dot(normal1, normal2)
+    norm1 = np.linalg.norm(normal1)
+    norm2 = np.linalg.norm(normal2)
+    cos_theta = dot_product / (norm1 * norm2)
+    theta = np.arccos(np.clip(cos_theta, -1.0, 1.0))
+    return theta
+
+
 class DetectionNode(object):
     def __init__(self):
         self.mocap_model = None
@@ -246,30 +255,37 @@ class DetectionNode(object):
                     y_cam = (point_2d[1] - self.camera_model.cy()) * depth / self.camera_model.fy() * self.camera_scale
                     z_cam = depth * self.camera_scale
 
-                    wrist_quat = np.array([mocap.pose.orientation.x, mocap.pose.orientation.y, mocap.pose.orientation.z, mocap.pose.orientation.w])
+                    wrist_quat = np.array([mocap.pose.orientation.x,
+                                           mocap.pose.orientation.y,
+                                           mocap.pose.orientation.z,
+                                           mocap.pose.orientation.w])
                     wrist_rot = R.from_quat(wrist_quat).as_matrix()
 
-                    # TODO egocentric or third person view should have different cross section
-                    wrist_y_yoz = np.array([0, wrist_rot[1, 1], wrist_rot[2, 1]])
-                    wrist_y_yoz /= np.linalg.norm(wrist_y_yoz)
-
-                    wrist_z_yoz = np.array([0, wrist_rot[1, 2], wrist_rot[2, 2]])
-                    wrist_z_yoz /= np.linalg.norm(wrist_z_yoz)
-
-                    orig_forward = np.array([0, 0, 1])
-                    intersection_angle = np.arccos(np.abs(np.dot(wrist_z_yoz, orig_forward)))
-                    view_k = np.tan(intersection_angle)
-                    wrist_k = -1.0 / view_k
-
-                    x0 = np.sqrt(self.wrist_a**4 * wrist_k**2 / (self.wrist_a**2 * wrist_k**2 + self.wrist_b**2))
-                    y0 = -self.wrist_b**2 * x0 / (self.wrist_a**2 * wrist_k)
-
-                    if np.dot(orig_forward, wrist_z_yoz) < 0:
-                        x0 = -x0
-                    if np.dot(orig_forward, wrist_y_yoz) < 0:
-                        y0 = -y0
+                    # wrist eclipse intersection plane
+                    wrist_plane_normal = wrist_rot[:, 0]
+                    wrist_y_axis = wrist_rot[:, 1]
+                    wrist_z_axis = wrist_rot[:, 2]
 
                     wrist_cam_orig = np.array([x_cam, y_cam, z_cam])
+                    view_vector = wrist_cam_orig / np.linalg.norm(wrist_cam_orig)
+
+                    view_vector_proj = view_vector - np.dot(view_vector, wrist_plane_normal) * wrist_plane_normal
+                    view_vector_proj /= np.linalg.norm(view_vector_proj)
+
+
+                    intersection_angle = np.arccos(np.abs(np.dot(wrist_z_axis, view_vector_proj)))
+                    view_k = np.tan(intersection_angle)
+
+                    c = view_k * self.wrist_b ** 2 / self.wrist_a ** 2
+
+                    x0 = np.sqrt(self.wrist_a ** 2 * self.wrist_b ** 2 / (self.wrist_b ** 2 + self.wrist_a ** 2 * c ** 2))
+                    y0 = c * x0
+
+                    if np.dot(view_vector_proj, wrist_z_axis) < 0:
+                        x0 = -x0
+                    if np.dot(view_vector_proj, wrist_y_axis) < 0:
+                        y0 = -y0
+
                     wrist_cam = wrist_cam_orig + wrist_rot @ np.array([0, y0, x0])
 
                     self.tf_broadcaster.sendTransform(

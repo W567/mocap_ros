@@ -305,12 +305,20 @@ class DetectionNode(object):
                         # translation to the wrist ellipse center
                         wrist_cam_new = wrist_cam_orig + wrist_rot @ np.array([0, y0, x0])
 
-                        if self.prev_wrist is None:
-                            wrist_cam = wrist_cam_new
+                        if mocap.detection.label == "left_hand":
+                            if self.prev_left_wrist is None:
+                                wrist_cam = wrist_cam_new
+                            else:
+                                # Exponential Moving Average (EMA) filter to avoid serious jitter and deal with temporary occlusion
+                                wrist_cam = self.ema_alpha * wrist_cam_new + (1 - self.ema_alpha) * self.prev_left_wrist
+                            self.prev_left_wrist = wrist_cam
                         else:
-                            # Exponential Moving Average (EMA) filter to avoid serious jitter and deal with temporary occlusion
-                            wrist_cam = self.ema_alpha * wrist_cam_new + (1 - self.ema_alpha) * self.prev_wrist
-                        self.prev_wrist = wrist_cam
+                            if self.prev_right_wrist is None:
+                                wrist_cam = wrist_cam_new
+                            else:
+                                # Exponential Moving Average (EMA) filter to avoid serious jitter and deal with temporary occlusion
+                                wrist_cam = self.ema_alpha * wrist_cam_new + (1 - self.ema_alpha) * self.prev_right_wrist
+                            self.prev_right_wrist = wrist_cam
 
                     self.tf_broadcaster.sendTransform(
                         (

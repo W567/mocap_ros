@@ -15,6 +15,7 @@ add_message_files(
     DetectionArray.msg
     Mocap.msg
     MocapArray.msg
+    QuaternionSegment.msg
 )
 
 generate_messages(

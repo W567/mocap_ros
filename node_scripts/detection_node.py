@@ -10,7 +10,7 @@ from image_geometry import PinholeCameraModel
 from sensor_msgs.msg import Image, CameraInfo
 from geometry_msgs.msg import Point, Pose, Quaternion
 from jsk_recognition_msgs.msg import Rect, HumanSkeleton, Segment
-from mocap_ros.msg import Detection, DetectionArray, Mocap, MocapArray
+from mocap_ros.msg import Detection, DetectionArray, Mocap, MocapArray, QuaternionSegment
 
 from motion_capture.detector import DetectionModelFactory
 from motion_capture.mocap import MocapModelFactory

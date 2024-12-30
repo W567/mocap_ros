@@ -252,10 +252,16 @@ class DetectionNode(object):
                     )
                     depth = self.depth_image[int(point_2d[1]), int(point_2d[0])]
                     if np.isnan(depth) or (depth == 0.0):
-                        if self.prev_wrist is None:
-                            continue
+                        if mocap.detection.label == "left_hand":
+                            if self.prev_left_wrist is None:
+                                continue
+                            else:
+                                wrist_cam = self.prev_left_wrist
                         else:
-                            wrist_cam = self.prev_wrist
+                            if self.prev_right_wrist is None:
+                                continue
+                            else:
+                                wrist_cam = self.prev_right_wrist
                     else:
                         # Calculate 3D coordinates in the camera frame
                         x_cam = (point_2d[0] - self.camera_model.cx()) * depth / self.camera_model.fx() * self.camera_scale

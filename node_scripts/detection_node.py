@@ -216,10 +216,10 @@ class DetectionNode(object):
                         z=mocaps[i].position[2],
                     ),
                     orientation=Quaternion(
-                        w=mocaps[i].orientation[0],
-                        x=mocaps[i].orientation[1],
-                        y=mocaps[i].orientation[2],
-                        z=mocaps[i].orientation[3],
+                        x=mocaps[i].orientation[0],
+                        y=mocaps[i].orientation[1],
+                        z=mocaps[i].orientation[2],
+                        w=mocaps[i].orientation[3],
                     ),
                 )
                 mocap_array.mocaps[i].skeleton = skeleton

@@ -50,7 +50,9 @@ class DetectionNode(object):
         self.wrist_b = rospy.get_param("~wrist_b", 0.02)
 
         self.ema_alpha = rospy.get_param("~ema_alpha", 0.1)
-        self.prev_wrist = None
+        # TODO current only support one person
+        self.prev_left_wrist = None
+        self.prev_right_wrist = None
 
         if self.publish_tf:
             self.tf_broadcaster = tf.TransformBroadcaster()

@@ -194,6 +194,7 @@ class DetectionNode(object):
                 skeleton = HumanSkeleton()
                 skeleton.bone_names = []
                 skeleton.bones = []
+                skeleton_quaternion = []
                 for j, (start, end) in enumerate(self.joint_connections):
                     bone = Segment()
                     bone.start_point = Point(
@@ -209,6 +210,21 @@ class DetectionNode(object):
                     skeleton.bones.append(bone)
                     skeleton.bone_names.append(self.connection_names[j])
 
+                    bone_quaternion = QuaternionSegment()
+                    bone_quaternion.start_quaternion = Quaternion(
+                        x=mocaps[i].keypoints_quat[start][0],
+                        y=mocaps[i].keypoints_quat[start][1],
+                        z=mocaps[i].keypoints_quat[start][2],
+                        w=mocaps[i].keypoints_quat[start][3],
+                    )
+                    bone_quaternion.end_quaternion = Quaternion(
+                        x=mocaps[i].keypoints_quat[end][0],
+                        y=mocaps[i].keypoints_quat[end][1],
+                        z=mocaps[i].keypoints_quat[end][2],
+                        w=mocaps[i].keypoints_quat[end][3],
+                    )
+                    skeleton_quaternion.append(bone_quaternion)
+
                 mocap_array.mocaps[i].pose = Pose(
                     position=Point(
                         x=mocaps[i].position[0],
@@ -223,6 +239,7 @@ class DetectionNode(object):
                     ),
                 )
                 mocap_array.mocaps[i].skeleton = skeleton
+                mocap_array.mocaps[i].skeleton_quaternion = skeleton_quaternion
             self.pub_mocaps.publish(mocap_array)
         else:
             mocap_array = MocapArray()
@@ -344,12 +361,18 @@ class DetectionNode(object):
 
                         parent_point = mocap.skeleton.bones[bone_idx].start_point
                         child_point = mocap.skeleton.bones[bone_idx].end_point
+
+                        parent_quaternion = mocap.skeleton_quaternion[bone_idx].start_quaternion
+                        child_quaternion = mocap.skeleton_quaternion[bone_idx].end_quaternion
+
+                        # the bone is in the camera frame
+                        # transform the bone pose to be under parent frame
                         parent_to_child = R.from_quat(
                             [
-                                mocap.pose.orientation.x,
-                                mocap.pose.orientation.y,
-                                mocap.pose.orientation.z,
-                                mocap.pose.orientation.w,
+                                parent_quaternion.x,
+                                parent_quaternion.y,
+                                parent_quaternion.z,
+                                parent_quaternion.w,
                             ]
                         ).inv().as_matrix() @ np.array(
                             [
@@ -357,12 +380,29 @@ class DetectionNode(object):
                                 child_point.y - parent_point.y,
                                 child_point.z - parent_point.z,
                             ]
-                        )  # cause the bone is in the camera frame
+                        )
+
+                        parent_to_child_rot = R.from_quat(
+                            [
+                                parent_quaternion.x,
+                                parent_quaternion.y,
+                                parent_quaternion.z,
+                                parent_quaternion.w,
+                            ]
+                        ).inv().as_matrix() @ R.from_quat(
+                            [
+                                child_quaternion.x,
+                                child_quaternion.y,
+                                child_quaternion.z,
+                                child_quaternion.w,
+                            ]
+                        ).as_matrix()
+                        parent_to_child_quat = R.from_matrix(parent_to_child_rot).as_quat()
 
                         # broadcast bone pose in tree structure
                         self.tf_broadcaster.sendTransform(
-                            (parent_to_child[0], parent_to_child[1], parent_to_child[2]),
-                            (0, 0, 0, 1),
+                            parent_to_child,
+                            parent_to_child_quat,
                             rospy.Time.now(),
                             mocap.detection.label + "/" + child_name,
                             mocap.detection.label + "/" + parent_name,

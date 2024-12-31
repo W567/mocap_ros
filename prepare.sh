@@ -43,3 +43,9 @@ pip install -U PyOpenGL PyOpenGL_accelerate git+https://github.com/ojh6404/chump
 
 # for ros build
 pip install psutil empy==3.3.2 rospkg gnupg pycryptodomex catkin-tools wheel cython ninja importlib_metadata netifaces
+
+pip install --upgrade setuptools wheel
+cd ../WiLoR && pip install -r requirements.txt && pip install -e .
+wget https://huggingface.co/spaces/rolpotamias/WiLoR/resolve/main/pretrained_models/detector.pt -P ./pretrained_models/
+wget https://huggingface.co/spaces/rolpotamias/WiLoR/resolve/main/pretrained_models/wilor_final.ckpt -P ./pretrained_models/
+gdown https://drive.google.com/uc\?id\=1sgZ9dF0FH5z9wSXm9dNXuSyN3ZaTX28U -O mano_data/MANO_RIGHT.pkl -c

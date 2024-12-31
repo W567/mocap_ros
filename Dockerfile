@@ -131,7 +131,15 @@ RUN sed -i '283s/__C.POOLING_MODE = '\''crop'\''/__C.POOLING_MODE = '\''pool'\''
 
 RUN pip install networkx==3.1
 
-# TODO have to remove this
-COPY motion_capture/motion_capture/mocap/mocap_wrapper.py /home/user/catkin_ws/src/mocap_ros/motion_capture/motion_capture/mocap/mocap_wrapper.py
+## TODO have to remove this
+#COPY motion_capture/motion_capture/mocap/mocap_wrapper.py /home/user/catkin_ws/src/mocap_ros/motion_capture/motion_capture/mocap/mocap_wrapper.py
+#COPY motion_capture/motion_capture/utils/utils.py /home/user/catkin_ws/src/mocap_ros/motion_capture/motion_capture/utils/utils.py
+#COPY motion_capture/motion_capture/detector/detector_wrapper.py /home/user/catkin_ws/src/mocap_ros/motion_capture/motion_capture/detector/detector_wrapper.py
+#
+#COPY msg/QuaternionSegment.msg /home/user/catkin_ws/src/mocap_ros/msg/QuaternionSegment.msg
+#COPY msg/Mocap.msg /home/user/catkin_ws/src/mocap_ros/msg/Mocap.msg
+#COPY CMakeLists.txt /home/user/catkin_ws/src/mocap_ros/CMakeLists.txt
+#RUN cd ~/catkin_ws/src/ &&\
+#    catkin build mocap_ros
 
 CMD ["bash"]

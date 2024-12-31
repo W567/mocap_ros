@@ -102,7 +102,7 @@ ENV PATH="$PATH:/home/user/.local/bin"
 # Installing catkin package
 RUN mkdir -p ~/catkin_ws/src
 RUN sudo rosdep init && rosdep update && sudo apt update
-RUN cd ~/catkin_ws/src && git clone https://github.com/ojh6404/mocap_ros.git
+RUN cd ~/catkin_ws/src && git clone https://github.com/W567/mocap_ros.git
 RUN cd ~/catkin_ws/src/mocap_ros && ./prepare.sh
 RUN cd ~/catkin_ws/src/ &&\
     source /opt/ros/noetic/setup.bash &&\
@@ -120,7 +120,7 @@ RUN rm -rf ~/catkin_ws/src/mocap_ros/node_scripts
 RUN touch ~/.bashrc
 RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
 
-RUN cp /home/user/catkin_ws/src/mocap_ros/motion_capture/third_party/frankmocap/detectors/hand_object_detector/lib/hand_object_detector/ /home/user/catkin_ws/src/mocap_ros/motion_capture/third_party/frankmocap/detectors/hand_object_detector/lib/model/ -r
+# RUN cp /home/user/catkin_ws/src/mocap_ros/motion_capture/third_party/frankmocap/detectors/hand_object_detector/lib/hand_object_detector/ /home/user/catkin_ws/src/mocap_ros/motion_capture/third_party/frankmocap/detectors/hand_object_detector/lib/model/ -r
 
 RUN cd /home/user/catkin_ws/src/mocap_ros/motion_capture/third_party/hamer/ &&\
     bash fetch_demo_data.sh

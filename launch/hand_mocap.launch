@@ -14,8 +14,9 @@
   <arg name="publish_tf" default="true" />
   <arg name="visualize" default="true" /> <!-- visualization. set false if you want to speed up -->
 
-  <arg name="wrist_a" default="0.0295" /> <!-- length of cross section ellipse of the wrist (meter) -->
-  <arg name="wrist_b" default="0.0205" />
+  <arg name="wrist_a" default="0.03" /> <!-- length of cross section ellipse of the wrist (meter) -->
+  <arg name="wrist_b" default="0.0225" />
+  <arg name="arrow" default="true" /> <!-- visualize arrow for tip direction -->
 
   <group if="$(eval camera_type == 'kinect')">
     <arg name="input_image" default="/kinect_head/rgb/image_rect_color"/>
@@ -115,4 +116,6 @@
     </rosparam>
     </node>
   </group>
+
+  <node name="tip_arrow" pkg="mocap_ros" type="tip_arrow.py" output="screen" if="$(eval arrow)" />
 </launch>

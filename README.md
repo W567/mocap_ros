@@ -30,6 +30,7 @@ Otherwise, you can build this package on docker environment.
 git clone https://github.com/ojh6404/mocap_ros.git
 cd mocap_ros && catkin bt # to build message
 docker build -t mocap_ros .
+# docker build --no-cache -t mocap_ros .
 ```
 
 ## Usage

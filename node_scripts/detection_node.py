@@ -75,9 +75,16 @@ class DetectionNode(object):
                 "device": self.device,
             }
         elif self.detector == "yolo":
+            # This is for body detection
             self.detector_config = {
                 "margin": rospy.get_param("~margin", 10),
                 "threshold": rospy.get_param("~threshold", 0.9),
+                "device": self.device,
+            }
+        elif self.detector == "yolo_hand":
+            self.detector_config = {
+                "margin": rospy.get_param("~margin", 0),
+                "threshold": rospy.get_param("~threshold", 0.5),
                 "device": self.device,
             }
         else:
@@ -99,6 +106,17 @@ class DetectionNode(object):
                 self.connection_names = MANO_CONNECTION_NAMES
                 self.joint_connections = MANO_JOINTS_CONNECTION
             elif self.mocap == "hamer":
+                self.mocap_config = {
+                    "focal_length": self.camera_model.fx(),
+                    "rescale_factor": rospy.get_param("~rescale_factor", 2.0),
+                    "img_size": self.img_size,
+                    "visualize": self.with_visualize,
+                    "device": self.device,
+                }
+                self.keypoint_names = MANO_KEYPOINT_NAMES
+                self.connection_names = MANO_CONNECTION_NAMES
+                self.joint_connections = MANO_JOINTS_CONNECTION
+            elif self.mocap == "wilor":
                 self.mocap_config = {
                     "focal_length": self.camera_model.fx(),
                     "rescale_factor": rospy.get_param("~rescale_factor", 2.0),

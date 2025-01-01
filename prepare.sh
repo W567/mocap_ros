@@ -1,9 +1,12 @@
 #!/usr/bin/bash
 
 git submodule update --init --recursive
+# shellcheck disable=SC2016
 git submodule foreach --recursive '
-  default_branch=$(git remote show origin | grep "HEAD branch" | awk "{print \$NF}");
-  git checkout $default_branch && git pull origin $default_branch || echo "Branch not found for submodule: $(pwd)";
+  echo "Updating submodule: $(pwd)"
+  git fetch origin
+  # Checkout the commit specified by the main repository
+  git checkout $(git rev-parse HEAD) || echo "Error: Cannot checkout target commit in $(pwd)"
 '
 pip install torch==2.3.1 torchvision==0.18.1 --index-url https://download.pytorch.org/whl/cu121
 # conda install pytorch==2.4.0 torchvision==0.19.0 torchaudio==2.4.0 pytorch-cuda=12.4 -c pytorch -c nvidia

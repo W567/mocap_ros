@@ -102,7 +102,7 @@ ENV PATH="$PATH:/home/user/.local/bin"
 # Installing catkin package
 RUN mkdir -p ~/catkin_ws/src
 RUN sudo rosdep init && rosdep update && sudo apt update
-RUN cd ~/catkin_ws/src && git clone https://github.com/W567/mocap_ros.git
+RUN cd ~/catkin_ws/src && git clone https://github.com/W567/mocap_ros.git -b dev
 RUN cd ~/catkin_ws/src/mocap_ros && ./prepare.sh
 RUN cd ~/catkin_ws/src/ &&\
     source /opt/ros/noetic/setup.bash &&\
@@ -114,22 +114,30 @@ RUN cd ~/catkin_ws/src/ &&\
 RUN rm -rf ~/catkin_ws/src/mocap_ros/launch
 RUN rm -rf ~/catkin_ws/src/mocap_ros/node_scripts
 
+## to avoid numpy version error
+RUN pip install networkx==3.1
+
 #########################################
 ############ ENV VARIABLE STUFF #########
 #########################################
 RUN touch ~/.bashrc
 RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
 
-# RUN cp /home/user/catkin_ws/src/mocap_ros/motion_capture/third_party/frankmocap/detectors/hand_object_detector/lib/hand_object_detector/ /home/user/catkin_ws/src/mocap_ros/motion_capture/third_party/frankmocap/detectors/hand_object_detector/lib/model/ -r
-
-RUN cd /home/user/catkin_ws/src/mocap_ros/motion_capture/third_party/hamer/ &&\
-    bash fetch_demo_data.sh
+#RUN cd /home/user/catkin_ws/src/mocap_ros/motion_capture/third_party/hamer/ &&\
+#    bash fetch_demo_data.sh
 
 RUN sed -i '283s/__C.POOLING_MODE = '\''crop'\''/__C.POOLING_MODE = '\''pool'\''/' \
     /home/user/catkin_ws/src/mocap_ros/motion_capture/third_party/frankmocap/detectors/hand_object_detector/lib/hand_object_detector/utils/config.py
 
 
-RUN pip install networkx==3.1
+#RUN sed -i '527s/.*/def get_example(img_path, center_x: float, center_y: float,/' \
+#    /home/user/catkin_ws/src/mocap_ros/motion_capture/third_party/4D-Humans/hmr2/datasets/utils.py
+#
+#RUN sed -i '16s/.*/def expand_urls(urls):/' \
+#    /home/user/catkin_ws/src/mocap_ros/motion_capture/third_party/4D-Humans/hmr2/datasets/image_dataset.py
+#
+#RUN sed -i '210s/.*/    def load_tars_as_webdataset(cfg: CfgNode, urls, train: bool,/' \
+#    /home/user/catkin_ws/src/mocap_ros/motion_capture/third_party/4D-Humans/hmr2/datasets/image_dataset.py
 
 ## TODO have to remove this
 #COPY motion_capture/motion_capture/mocap/mocap_wrapper.py /home/user/catkin_ws/src/mocap_ros/motion_capture/motion_capture/mocap/mocap_wrapper.py

@@ -3,8 +3,8 @@
   <arg name="device" default="cuda:0" /> <!-- cpu or cuda -->
 
   <arg name="with_mocap" default="true" />
-  <arg name="detector_model" default="hand_object_detector" />  <!-- hand_object_detector, mediapipe_hand, ... -->
-  <arg name="mocap_model" default="hamer" />  <!-- frankmocap_hand, hamer, 4d-human -->
+  <arg name="detector_model" default="yolo_hand" />  <!-- hand_object_detector, mediapipe_hand, yolo_hand, ... -->
+  <arg name="mocap_model" default="wilor" />  <!-- frankmocap_hand, hamer, 4d-human, wilor -->
   <arg name="render_type" default="opengl" />  <!-- for frankmocap, opengl or pytorch3d -->
   <arg name="rescale_factor" default="2.0" />  <!-- for hamer -->
   <arg name="threshold" default="0.9" />

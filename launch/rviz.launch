@@ -1,9 +1,25 @@
 <launch>
-  <arg name="type" default="hand" /> <!-- [hand, mocap, wholebody] -->
+  <arg name="type" default="robot" /> <!-- [robot, hand, mocap, wholebody] -->
+  <arg name="camera" default="realsense" />
 
-  <node
-    name="rviz"
-    pkg="rviz"
-    type="rviz"
-    args="-d $(find mocap_ros)/rviz/$(arg type).rviz" required="true" />
+  <include file="$(find mocap_ros)/launch/camera.launch">
+    <arg name="camera" value="$(arg camera)" />
+  </include>
+
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find mocap_ros)/rviz/$(arg type).rviz" required="true" />
+
+  <arg name="robot" default="srh_float" />
+  <arg name="urdf" default="false" />
+
+  <param name="robot_description"
+         command="$(find xacro)/xacro $(find robot_models)/$(arg robot)/urdf/$(arg robot).urdf.xacro"
+         unless="$(arg urdf)" />
+  <param name="robot_description"
+         textfile= "$(find robot_models)/$(arg robot)/urdf/$(arg robot).urdf"
+         if="$(arg urdf)" />
+
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" required="true">
+        <param name="publish_frequency" value="120" />
+  </node>
+
 </launch>

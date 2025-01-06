@@ -123,27 +123,14 @@ RUN pip install networkx==3.1
 RUN touch ~/.bashrc
 RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
 
-#RUN cd /home/user/catkin_ws/src/mocap_ros/motion_capture/third_party/hamer/ &&\
-#    bash fetch_demo_data.sh
-
 RUN sed -i '283s/__C.POOLING_MODE = '\''crop'\''/__C.POOLING_MODE = '\''pool'\''/' \
     /home/user/catkin_ws/src/mocap_ros/motion_capture/third_party/frankmocap/detectors/hand_object_detector/lib/hand_object_detector/utils/config.py
 
+## For debug only
+COPY motion_capture/motion_capture/mocap/mocap_wrapper.py /home/user/catkin_ws/src/mocap_ros/motion_capture/motion_capture/mocap/mocap_wrapper.py
+COPY motion_capture/motion_capture/utils/utils.py /home/user/catkin_ws/src/mocap_ros/motion_capture/motion_capture/utils/utils.py
+COPY motion_capture/motion_capture/detector/detector_wrapper.py /home/user/catkin_ws/src/mocap_ros/motion_capture/motion_capture/detector/detector_wrapper.py
 
-#RUN sed -i '527s/.*/def get_example(img_path, center_x: float, center_y: float,/' \
-#    /home/user/catkin_ws/src/mocap_ros/motion_capture/third_party/4D-Humans/hmr2/datasets/utils.py
-#
-#RUN sed -i '16s/.*/def expand_urls(urls):/' \
-#    /home/user/catkin_ws/src/mocap_ros/motion_capture/third_party/4D-Humans/hmr2/datasets/image_dataset.py
-#
-#RUN sed -i '210s/.*/    def load_tars_as_webdataset(cfg: CfgNode, urls, train: bool,/' \
-#    /home/user/catkin_ws/src/mocap_ros/motion_capture/third_party/4D-Humans/hmr2/datasets/image_dataset.py
-
-## TODO have to remove this
-#COPY motion_capture/motion_capture/mocap/mocap_wrapper.py /home/user/catkin_ws/src/mocap_ros/motion_capture/motion_capture/mocap/mocap_wrapper.py
-#COPY motion_capture/motion_capture/utils/utils.py /home/user/catkin_ws/src/mocap_ros/motion_capture/motion_capture/utils/utils.py
-#COPY motion_capture/motion_capture/detector/detector_wrapper.py /home/user/catkin_ws/src/mocap_ros/motion_capture/motion_capture/detector/detector_wrapper.py
-#
 #COPY msg/QuaternionSegment.msg /home/user/catkin_ws/src/mocap_ros/msg/QuaternionSegment.msg
 #COPY msg/Mocap.msg /home/user/catkin_ws/src/mocap_ros/msg/Mocap.msg
 #COPY CMakeLists.txt /home/user/catkin_ws/src/mocap_ros/CMakeLists.txt

@@ -28,14 +28,20 @@ class Tracker(OptIK):
 
         tol = rospy.get_param('~tol', 1e-4)
         collision_threshold = rospy.get_param('~collision_threshold', 0.018)
+        nor_weight = rospy.get_param('~nor_weight', 0.01)
+        col_weight = rospy.get_param('~col_weight', 1.0)
         verbose = rospy.get_param('~verbose', False)
         with_collision = rospy.get_param('~with_collision', True)
 
-        OptIK.__init__(self,
-                       tol=tol,
-                       collision_threshold=collision_threshold,
-                       verbose=verbose,
-                       with_collision=with_collision)
+        OptIK.__init__(
+            self,
+            tol=tol,
+            nor_weight=nor_weight,
+            col_weight=col_weight,
+            collision_threshold=collision_threshold,
+            verbose=verbose,
+            with_collision=with_collision
+        )
 
 
         rate = rospy.get_param('~rate', 30.0)

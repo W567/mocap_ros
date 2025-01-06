@@ -123,7 +123,7 @@ class OptIK:
         """
         fingertip_frame_id = self.model.getFrameId(frame, pin.BODY)  # Adjust frame names
 
-        jacobian = pin.computeFrameJacobian(self.model, self.data, q, fingertip_frame_id)
+        jacobian = pin.computeFrameJacobian(self.model, self.data, q, fingertip_frame_id, pin.LOCAL_WORLD_ALIGNED)
 
         return jacobian
 

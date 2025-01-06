@@ -69,6 +69,25 @@ class OptIK:
                          4, 5, 6, 7, 8,      # little
                         17, 18, 19, 20, 21]  # thumb
 
+        self.col_frame_pairs = [("rh_fftip", "rh_mftip"),
+                               ("rh_mftip", "rh_rftip"),
+                               ("rh_rftip", "rh_lftip"),
+                               ("rh_ffdistal", "rh_mfdistal"),
+                               ("rh_mfdistal", "rh_rfdistal"),
+                               ("rh_rfdistal", "rh_lfdistal"),
+                               ("rh_fftip", "rh_mfdistal"),
+                               ("rh_mftip", "rh_rfdistal"),
+                               ("rh_rftip", "rh_lfdistal"),
+                               ("rh_ffdistal", "rh_mftip"),
+                               ("rh_mfdistal", "rh_rftip"),
+                               ("rh_rfdistal", "rh_lftip"),
+                               ("rh_ffmiddle", "rh_mfmiddle"),
+                               ("rh_mfmiddle", "rh_rfmiddle"),
+                               ("rh_rfmiddle", "rh_lfmiddle")]
+
+        self.col_frame_pair_indices = [(self.model.getFrameId(frame1, pin.BODY), self.model.getFrameId(frame2, pin.BODY))
+                                       for frame1, frame2 in self.col_frame_pairs]
+
 
     def forward_kinematics(self, joint_angles):
         """
@@ -120,14 +139,13 @@ class OptIK:
             # Set the mimic joints to the previous joint angles
             qpos[self.mimic_joint_ids] = qpos[self.mimic_joint_ids - 1]
             self.forward_kinematics(qpos)
-            actual_poses = self.get_frame_poses(fingertip_frames)
+            actual_tip_poses = self.get_frame_poses(fingertip_frames)
+            tip_body_pos = np.array([pose[:3, 3] for pose in actual_tip_poses])
 
-            body_pos = np.array([pose[:3, 3] for pose in actual_poses])
+            torch_tip_body_pos = torch.as_tensor(tip_body_pos)
+            torch_tip_body_pos.requires_grad_()
 
-            torch_body_pos = torch.as_tensor(body_pos)
-            torch_body_pos.requires_grad_()
-
-            pos_dist = torch.norm(torch_body_pos - desired_positions, dim=1, keepdim=False).sum()
+            pos_dist = torch.norm(torch_tip_body_pos - desired_positions, dim=1, keepdim=False).sum()
 
             result = pos_dist.cpu().detach().item()
 
@@ -136,14 +154,14 @@ class OptIK:
 
                 for i, frame in enumerate(fingertip_frames):
                     link_body_jacobian = self.compute_jacobian(qpos, frame)[:3, ...]
-                    link_pose = actual_poses[i]
+                    link_pose = actual_tip_poses[i]
                     link_rot = link_pose[:3, :3]
                     link_kinematics_jacobian = link_rot @ link_body_jacobian[:3, :]
                     jacobians.append(link_kinematics_jacobian)
 
                 jacobians = np.stack(jacobians, axis=0)
                 pos_dist.backward()
-                grad_pos = torch_body_pos.grad.cpu().numpy()[:, None, :]
+                grad_pos = torch_tip_body_pos.grad.cpu().numpy()[:, None, :]
 
                 grad_qpos = np.matmul(grad_pos, np.array(jacobians))
                 grad_qpos = grad_qpos.mean(1).sum(0)

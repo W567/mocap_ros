@@ -24,8 +24,19 @@ def get_rot_angle(axis_orig, axis, plane_normal):
 
 class Tracker(OptIK):
     def __init__(self):
-        super(Tracker, self).__init__()
         rospy.init_node('tracker', anonymous=True)
+
+        tol = rospy.get_param('~tol', 1e-4)
+        collision_threshold = rospy.get_param('~collision_threshold', 0.018)
+        verbose = rospy.get_param('~verbose', False)
+        with_collision = rospy.get_param('~with_collision', True)
+
+        OptIK.__init__(self,
+                       tol=tol,
+                       collision_threshold=collision_threshold,
+                       verbose=verbose,
+                       with_collision=with_collision)
+
 
         rate = rospy.get_param('~rate', 30.0)
         self.tracker_rate = rospy.Rate(rate)

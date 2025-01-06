@@ -70,22 +70,18 @@ class OptIK:
                         17, 18, 19, 20, 21]  # thumb
 
 
-    def forward_kinematics_poses(self, joint_angles, frames):
+    def forward_kinematics(self, joint_angles):
         """
         Compute the positions and orientations for all fingers given joint angles using Pinocchio.
         Args:
             joint_angles: List of joint angles for all fingers.
-            frames: List of frame names.
-        Returns:
-            positions (list of numpy arrays): Fingertip positions in 3D for each finger.
-            normals (list of numpy arrays): Fingertip orientations as unit vectors for each finger.
         """
-        # Set the joint angles for the model
         q = np.array(joint_angles)
-
         pin.forwardKinematics(self.model, self.data, q)
         pin.updateFramePlacements(self.model, self.data)
 
+
+    def get_frame_poses(self, frames):
         poses = []
         for fr in frames:
             fr_id = self.model.getFrameId(fr, pin.BODY)
@@ -94,28 +90,20 @@ class OptIK:
             pose[:3, :3] = self.data.oMf[fr_id].rotation
             pose[:3, 3] = self.data.oMf[fr_id].translation
             poses.append(pose)
-
         return poses
 
-    def compute_jacobian(self, joint_angles, frame):
+
+    def compute_jacobian(self, q,  frame):
         """
         Compute the Jacobian matrix for the fingertip given joint angles using Pinocchio.
         Args:
-            joint_angles: List of joint angles for all fingers.
+            q: Joint angles.
             frame: Frame name.
         Returns:
             jacobian (numpy array): The Jacobian matrix of the fingertip.
         """
-        q = np.array(joint_angles)  # Convert joint_angles to a numpy array (if it's not already)
-
-        # Set the joint angles for the model
-        pin.forwardKinematics(self.model, self.data, q)
-        pin.updateFramePlacements(self.model, self.data)
-
-        # Get the fingertip frame ID (you may need to adjust this based on your URDF)
         fingertip_frame_id = self.model.getFrameId(frame, pin.BODY)  # Adjust frame names
 
-        # Compute the Jacobian at the fingertip frame
         jacobian = pin.computeFrameJacobian(self.model, self.data, q, fingertip_frame_id)
 
         return jacobian
@@ -131,7 +119,8 @@ class OptIK:
             qpos = x.copy()
             # Set the mimic joints to the previous joint angles
             qpos[self.mimic_joint_ids] = qpos[self.mimic_joint_ids - 1]
-            actual_poses = self.forward_kinematics_poses(qpos, fingertip_frames)
+            self.forward_kinematics(qpos)
+            actual_poses = self.get_frame_poses(fingertip_frames)
 
             body_pos = np.array([pose[:3, 3] for pose in actual_poses])
 
@@ -145,8 +134,8 @@ class OptIK:
             if grad.size > 0:
                 jacobians = []
 
-                for i, index in enumerate(fingertip_frames):
-                    link_body_jacobian = self.compute_jacobian(qpos, index)[:3, ...]
+                for i, frame in enumerate(fingertip_frames):
+                    link_body_jacobian = self.compute_jacobian(qpos, frame)[:3, ...]
                     link_pose = actual_poses[i]
                     link_rot = link_pose[:3, :3]
                     link_kinematics_jacobian = link_rot @ link_body_jacobian[:3, :]
@@ -209,12 +198,12 @@ class OptIK:
             self.objective_function(desired_positions, desired_normals, self.tip_frames, self.last_qpos))
 
         try:
-            result = self.opt.optimize(self.last_qpos)
+            res = self.opt.optimize(self.last_qpos)
             # Set the mimic joints to the previous joint angles
-            result[self.mimic_joint_ids] = result[self.mimic_joint_ids - 1]
-            self.last_qpos = result
+            res[self.mimic_joint_ids] = res[self.mimic_joint_ids - 1]
+            self.last_qpos = res
 
-            return result[self.pin2real]
+            return res[self.pin2real]
         except Exception as e:
             print(f"Optimization failed: {e}")
             return self.last_qpos[self.pin2real]

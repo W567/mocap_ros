@@ -152,11 +152,8 @@ class OptIK:
             if grad.size > 0:
                 jacobians = []
 
-                for i, frame in enumerate(fingertip_frames):
-                    link_body_jacobian = self.compute_jacobian(qpos, frame)[:3, ...]
-                    link_pose = actual_tip_poses[i]
-                    link_rot = link_pose[:3, :3]
-                    link_kinematics_jacobian = link_rot @ link_body_jacobian[:3, :]
+                for frame in fingertip_frames:
+                    link_kinematics_jacobian = self.compute_jacobian(qpos, frame)[:3, ...]
                     jacobians.append(link_kinematics_jacobian)
 
                 jacobians = np.stack(jacobians, axis=0)

@@ -6,7 +6,8 @@ import pinocchio as pin
 
 
 class OptIK:
-    def __init__(self, tol=1e-4):
+    def __init__(self, tol=1e-4, collision_threshold=0.018, verbose=False):
+        self.verbose = verbose
 
         self.thu_pos = np.zeros(3)
         self.thu_nor = np.zeros(3)
@@ -69,24 +70,61 @@ class OptIK:
                          4, 5, 6, 7, 8,      # little
                         17, 18, 19, 20, 21]  # thumb
 
-        self.col_frame_pairs = [("rh_fftip", "rh_mftip"),
-                               ("rh_mftip", "rh_rftip"),
-                               ("rh_rftip", "rh_lftip"),
-                               ("rh_ffdistal", "rh_mfdistal"),
-                               ("rh_mfdistal", "rh_rfdistal"),
-                               ("rh_rfdistal", "rh_lfdistal"),
-                               ("rh_fftip", "rh_mfdistal"),
-                               ("rh_mftip", "rh_rfdistal"),
-                               ("rh_rftip", "rh_lfdistal"),
-                               ("rh_ffdistal", "rh_mftip"),
-                               ("rh_mfdistal", "rh_rftip"),
-                               ("rh_rfdistal", "rh_lftip"),
-                               ("rh_ffmiddle", "rh_mfmiddle"),
-                               ("rh_mfmiddle", "rh_rfmiddle"),
-                               ("rh_rfmiddle", "rh_lfmiddle")]
+        self.col_frame_pairs = \
+            [
+                # # Tip <-> Tip
+                # ("rh_fftip", "rh_mftip"),
+                # ("rh_mftip", "rh_rftip"),
+                # ("rh_rftip", "rh_lftip"),
+                # Distal <-> Distal
+                ("rh_ffdistal", "rh_mfdistal"),
+                ("rh_mfdistal", "rh_rfdistal"),
+                ("rh_rfdistal", "rh_lfdistal"),
+                # # Tip <-> Distal
+                # ("rh_fftip", "rh_mfdistal"),
+                # ("rh_mftip", "rh_rfdistal"),
+                # ("rh_rftip", "rh_lfdistal"),
+                # # Distal <-> Tip
+                # ("rh_ffdistal", "rh_mftip"),
+                # ("rh_mfdistal", "rh_rftip"),
+                # ("rh_rfdistal", "rh_lftip"),
+                # Middle <-> Middle
+                ("rh_ffmiddle", "rh_mfmiddle"),
+                ("rh_mfmiddle", "rh_rfmiddle"),
+                ("rh_rfmiddle", "rh_lfmiddle"),
+                # Middle <-> Distal
+                ("rh_ffmiddle", "rh_mfdistal"),
+                ("rh_mfmiddle", "rh_rfdistal"),
+                ("rh_rfmiddle", "rh_lfdistal"),
+                # Distal <-> Middle
+                ("rh_ffdistal", "rh_mfmiddle"),
+                ("rh_mfdistal", "rh_rfmiddle"),
+                ("rh_rfdistal", "rh_lfmiddle"),
+
+                # lfproximal
+                ("rh_lfproximal", "rh_rfmiddle"),
+                ("rh_lfproximal", "rh_rfproximal"),
+
+                # Thumb
+                ("rh_thdistal", "rh_ffmiddle"),
+                ("rh_thdistal", "rh_mfmiddle"),
+                ("rh_thdistal", "rh_rfmiddle"),
+                ("rh_thdistal", "rh_lfmiddle"),
+                # ("rh_thmiddle", "rh_ffmiddle"),
+                # ("rh_thmiddle", "rh_mfmiddle"),
+                # ("rh_thmiddle", "rh_rfmiddle"),
+                # ("rh_thmiddle", "rh_lfmiddle"),
+            ]
 
         self.col_frame_pair_indices = [(self.model.getFrameId(frame1, pin.BODY), self.model.getFrameId(frame2, pin.BODY))
                                        for frame1, frame2 in self.col_frame_pairs]
+        self.col_frame_pair_indices = np.array(self.col_frame_pair_indices)
+
+        col_frame_pair_indices = np.array(self.col_frame_pair_indices).reshape(-1)
+        self.unique_col_frame_pair_indices = np.unique(col_frame_pair_indices)
+
+        # Collision threshold
+        self.collision_threshold = collision_threshold
 
 
     def forward_kinematics(self, joint_angles):
@@ -147,7 +185,32 @@ class OptIK:
 
             pos_dist = torch.norm(torch_tip_body_pos - desired_positions, dim=1, keepdim=False).sum()
 
-            result = pos_dist.cpu().detach().item()
+            ## Collision checking ======================================================================================
+            # Frame positions for collision checking
+            frame_positions = {frame_id: self.data.oMf[int(frame_id)].translation
+                               for frame_id in self.unique_col_frame_pair_indices}
+            torch_frame_positions_1 = torch.as_tensor(
+                np.array([frame_positions[frame_id_1] for frame_id_1, _ in self.col_frame_pair_indices]))
+            torch_frame_positions_2 = torch.as_tensor(
+                np.array([frame_positions[frame_id_2] for _, frame_id_2 in self.col_frame_pair_indices]))
+            torch_frame_rela_position = torch_frame_positions_1 - torch_frame_positions_2
+            torch_frame_rela_position.requires_grad_()
+
+            # Distances between specified frame pairs
+            distances = torch.norm(torch_frame_rela_position, dim=1, keepdim=False)
+            # Find the indices of the pairs that are closer than the threshold (collision detected)
+            col_indices = torch.where(distances < self.collision_threshold)[0]
+
+            all_col_cost = self.collision_threshold - distances[col_indices]
+            col_cost = all_col_cost.sum()
+
+            if self.verbose:
+                for col_index in col_indices:
+                    print(f"{self.col_frame_pairs[col_index]} Potential collision detected!"
+                          f"Distance: {distances[col_index]}")
+            ## Collision checking ======================================================================================
+
+            result = pos_dist.cpu().detach().item() + col_cost.cpu().detach().item()
 
             if grad.size > 0:
                 jacobians = []
@@ -165,6 +228,23 @@ class OptIK:
 
                 # Regularize the joint angles to the previous joint angles (smoothness term)
                 grad_qpos += 2 * 4e-3 * (x - last_qpos)
+
+                # Calculate the gradient for the collision cost only if there are collisions
+                if len(col_indices) > 0:
+                    frame_jacobians = []
+                    for frame_id_1, frame_id_2 in self.col_frame_pair_indices[col_indices.numpy()]:
+                        jacobian_1 = self.compute_jacobian(qpos, self.model.frames[int(frame_id_1)].name)[:3, ...]
+                        jacobian_2 = self.compute_jacobian(qpos, self.model.frames[int(frame_id_2)].name)[:3, ...]
+                        frame_jacobians.append(jacobian_1 - jacobian_2)
+
+                    frame_jacobians = np.stack(frame_jacobians, axis=0)
+                    col_cost.backward()
+                    grad_frame = torch_frame_rela_position.grad.cpu().numpy()[col_indices, None, :]
+
+                    grad_frame_qpos = np.matmul(grad_frame, frame_jacobians)
+                    grad_frame_qpos = grad_frame_qpos.mean(1).sum(0)
+
+                    grad_qpos += grad_frame_qpos
 
                 for mimic_id in self.mimic_joint_ids:
                     grad_qpos[mimic_id] = 0  # Mimic joints don’t contribute to the optimization gradient
@@ -200,6 +280,18 @@ class OptIK:
             self.lit_nor = np.array([0.33163346, -0.41941064, -0.84505264])
             self.thu_pos = np.array([0.04887634, -0.07812261, 0.08955634])
             self.thu_nor = np.array([-0.73207116, -0.54427482, -0.40967881])
+        # collision
+        elif idx == 2:
+            self.ind_pos = np.array([0.024, -0.058, 0.169])
+            self.ind_nor = np.array([-0.30107772, -0.43725329, -0.84744425])
+            self.mid_pos = np.array([0.019, -0.055, 0.168])
+            self.mid_nor = np.array([0.12893927, -0.02844863, -0.99124434])
+            self.rin_pos = np.array([-0.02002411, -0.05031957, 0.14441163])
+            self.rin_nor = np.array([0.35844603, -0.06347011, -0.93139035])
+            self.lit_pos = np.array([-0.04417813, -0.04551897, 0.1227557])
+            self.lit_nor = np.array([0.33163346, -0.41941064, -0.84505264])
+            self.thu_pos = np.array([0.04887634, -0.07812261, 0.08955634])
+            self.thu_nor = np.array([-0.73207116, -0.54427482, -0.40967881])
         else:
             raise ValueError("Invalid target index")
 
@@ -220,12 +312,13 @@ class OptIK:
 
             return res[self.pin2real]
         except Exception as e:
-            print(f"Optimization failed: {e}")
+            if self.verbose:
+                print(f"Optimization failed: {e}")
             return self.last_qpos[self.pin2real]
 
 
 if __name__ == '__main__':
     handle = OptIK()
-    handle.set_target(1)
+    handle.set_target(2)
     result = handle.optimize()
-    print(np.array2string(result, separator=', '))
+    print("====== result: \n", np.array2string(result, separator=', '))

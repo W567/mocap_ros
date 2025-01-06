@@ -21,16 +21,9 @@ class OptIK:
         self.col_weight = col_weight
         self.collision_threshold = collision_threshold
 
-        self.thu_pos = np.zeros(3)
-        self.thu_nor = np.zeros(3)
-        self.ind_pos = np.zeros(3)
-        self.ind_nor = np.zeros(3)
-        self.mid_pos = np.zeros(3)
-        self.mid_nor = np.zeros(3)
-        self.rin_pos = np.zeros(3)
-        self.rin_nor = np.zeros(3)
-        self.lit_pos = np.zeros(3)
-        self.lit_nor = np.zeros(3)
+        for finger in ["thu", "ind", "mid", "rin", "lit"]:
+            setattr(self, f"{finger}_pos", np.zeros(3))
+            setattr(self, f"{finger}_nor", np.zeros(3))
 
         # Load the robot model
         self.model = pin.buildModelFromUrdf("/home/wu/catkin_ws/src/mine/robot_models/srh_float/urdf/srh_float.urdf")

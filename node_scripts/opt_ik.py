@@ -161,10 +161,8 @@ class OptIK:
         Returns:
             jacobian (numpy array): The Jacobian matrix of the fingertip.
         """
-        fingertip_frame_id = self.model.getFrameId(frame, pin.BODY)  # Adjust frame names
-
-        jacobian = pin.computeFrameJacobian(self.model, self.data, q, fingertip_frame_id, pin.LOCAL_WORLD_ALIGNED)
-
+        frame_id = self.model.getFrameId(frame, pin.BODY)  # Adjust frame names
+        jacobian = pin.computeFrameJacobian(self.model, self.data, q, frame_id, pin.LOCAL_WORLD_ALIGNED)
         return jacobian
 
     def objective_function(self, desired_positions, desired_normals, fingertip_frames, last_qpos):

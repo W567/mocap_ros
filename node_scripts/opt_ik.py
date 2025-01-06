@@ -6,9 +6,20 @@ import pinocchio as pin
 
 
 class OptIK:
-    def __init__(self, tol=1e-4, collision_threshold=0.018, verbose=False, with_collision=True):
+    def __init__(self,
+                 tol=1e-4,
+                 nor_weight=0.01,
+                 col_weight=1.0,
+                 collision_threshold=0.018,
+                 verbose=False,
+                 with_collision=True
+                 ):
+
         self.verbose = verbose
         self.with_collision = with_collision
+        self.nor_weight = nor_weight
+        self.col_weight = col_weight
+        self.collision_threshold = collision_threshold
 
         self.thu_pos = np.zeros(3)
         self.thu_nor = np.zeros(3)
@@ -125,9 +136,6 @@ class OptIK:
             col_frame_pair_indices = np.array(self.col_frame_pair_indices).reshape(-1)
             self.unique_col_frame_pair_indices = np.unique(col_frame_pair_indices)
 
-            # Collision threshold
-            self.collision_threshold = collision_threshold
-
 
     def forward_kinematics(self, joint_angles):
         """
@@ -165,27 +173,33 @@ class OptIK:
         jacobian = pin.computeFrameJacobian(self.model, self.data, q, frame_id, pin.LOCAL_WORLD_ALIGNED)
         return jacobian
 
-    def objective_function(self, desired_positions, desired_normals, fingertip_frames, last_qpos):
 
+    def objective_function(self, desired_positions, desired_normals, fingertip_frames, last_qpos):
         desired_positions = torch.as_tensor(desired_positions, dtype=torch.float32)
         desired_positions.requires_grad_(False)
-        desired_normals = torch.as_tensor(desired_normals, dtype=torch.float32)
-        desired_normals.requires_grad_(False)
 
         def objective(x: np.ndarray, grad: np.ndarray) -> float:
             qpos = x.copy()
             # Set the mimic joints to the previous joint angles
             qpos[self.mimic_joint_ids] = qpos[self.mimic_joint_ids - 1]
             self.forward_kinematics(qpos)
+
+            ## Position distance =======================================================================================
             actual_tip_poses = self.get_frame_poses(fingertip_frames)
             tip_body_pos = np.array([pose[:3, 3] for pose in actual_tip_poses])
-
             torch_tip_body_pos = torch.as_tensor(tip_body_pos)
             torch_tip_body_pos.requires_grad_()
-
             pos_dist = torch.norm(torch_tip_body_pos - desired_positions, dim=1, keepdim=False).sum()
+            ## Position distance =======================================================================================
 
-            ## Collision checking ======================================================================================
+            ## Normal distance =========================================================================================
+            tip_body_nor = np.array([pose[:3, :3] @ np.array([0, -1, 0]) for pose in actual_tip_poses])
+            torch_tip_body_nor = torch.as_tensor(tip_body_nor)
+            nor_dist = (1 - torch.sum(torch_tip_body_nor * desired_normals, dim=1)).sum()
+            pos_dist += nor_dist * self.nor_weight
+            ## Normal distance =========================================================================================
+
+            ## Collision Cost ==========================================================================================
             col_cost = None
             col_indices = None
             torch_frame_rela_position = None
@@ -212,31 +226,47 @@ class OptIK:
                     for col_index in col_indices:
                         print(f"{self.col_frame_pairs[col_index]} Potential collision detected!"
                               f"Distance: {distances[col_index]}")
-            ## Collision checking ======================================================================================
-
-                objective_result = pos_dist.cpu().detach().item() + col_cost.cpu().detach().item()
+                objective_result = pos_dist.cpu().detach().item() + col_cost.cpu().detach().item() * self.col_weight
             else:
                 objective_result = pos_dist.cpu().detach().item()
+            ## Collision Cost ==========================================================================================
 
             if grad.size > 0:
                 jacobians = []
+                jacobians_omega = []
+                for i, frame in enumerate(fingertip_frames):
+                    link_kinematics_jacobian = self.compute_jacobian(qpos, frame)
+                    jacobians.append(link_kinematics_jacobian[:3, ...])
+                    jacobians_omega.append(link_kinematics_jacobian[3:, ...])
 
-                for frame in fingertip_frames:
-                    link_kinematics_jacobian = self.compute_jacobian(qpos, frame)[:3, ...]
-                    jacobians.append(link_kinematics_jacobian)
-
+                ## Position gradient ===================================================================================
                 jacobians = np.stack(jacobians, axis=0)
                 pos_dist.backward()
                 grad_pos = torch_tip_body_pos.grad.cpu().numpy()[:, None, :]
 
                 grad_qpos = np.matmul(grad_pos, np.array(jacobians))
                 grad_qpos = grad_qpos.mean(1).sum(0)
+                ## Position gradient ===================================================================================
 
-                # Regularize the joint angles to the previous joint angles (smoothness term)
+                ## Normal gradient =====================================================================================
+                jacobians_omega = np.stack(jacobians_omega, axis=0)
+                tip_body_nor_tmp = tip_body_nor[:, :, np.newaxis]
+                tip_body_nor_tmp = np.repeat(tip_body_nor_tmp, 22, axis=2)
+
+                dn_dq = np.cross(jacobians_omega, tip_body_nor_tmp, axis=1)
+
+                grad_nor_qpos = -dn_dq * desired_normals[:, :, np.newaxis]
+                grad_nor_qpos = grad_nor_qpos.sum(1).mean(0)
+                grad_qpos += grad_nor_qpos * self.nor_weight
+                ## Normal gradient =====================================================================================
+
+                ## Regularize the joint angles to the previous joint angles (smoothness term) ==========================
+                # TODO (Wu): weight should be adjusted
                 grad_qpos += 2 * 4e-3 * (x - last_qpos)
+                ## Regularize the joint angles to the previous joint angles (smoothness term) ==========================
 
-                if self.with_collision:
-                    # Calculate the gradient for the collision cost only if there are collisions
+                ## Calculate the gradient for the collision cost =======================================================
+                if self.with_collision: # only if there are collisions
                     if len(col_indices) > 0:
                         frame_jacobians = []
                         for frame_id_1, frame_id_2 in self.col_frame_pair_indices[col_indices.numpy()]:
@@ -251,7 +281,8 @@ class OptIK:
                         grad_frame_qpos = np.matmul(grad_frame, frame_jacobians)
                         grad_frame_qpos = grad_frame_qpos.mean(1).sum(0)
 
-                        grad_qpos += grad_frame_qpos
+                        grad_qpos += grad_frame_qpos * self.col_weight
+                ## Calculate the gradient for the collision cost =======================================================
 
                 for mimic_id in self.mimic_joint_ids:
                     grad_qpos[mimic_id] = 0  # Mimic joints don’t contribute to the optimization gradient
@@ -261,6 +292,7 @@ class OptIK:
             return objective_result
 
         return objective
+
 
     def set_target(self, idx=0):
         # open hand

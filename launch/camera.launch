@@ -2,14 +2,19 @@
   <!-- Declare an argument for the camera type -->
   <arg name="camera" default="realsense" />
 
-  <include if="$(arg camera) == 'realsense'" file="$(find realsense2_camera)/launch/rs_rgbd.launch">
-    <arg name="align_depth" value="true" />
-  </include>
+  <!-- Launch Realsense camera if camera is set to 'realsense' -->
+  <group if="$(eval arg('camera') == 'realsense')">
+    <include file="$(find realsense2_camera)/launch/rs_rgbd.launch">
+      <arg name="align_depth" value="true" />
+    </include>
+  </group>
 
-  <include if="$(arg camera) == 'astra'" file="$(find astra_camera)/launch/astra.launch">
-    <arg name="enable_publish_extrinsic" value="true" />
-    <arg name="color_depth_synchronization" value="true" />
-    <arg name="enable_d2c_viewer" value="false" />
-  </include>
-
+  <!-- Launch Astra camera if camera is set to 'astra' -->
+  <group if="$(eval arg('camera') == 'astra')">
+    <include file="$(find astra_camera)/launch/astra.launch">
+      <arg name="enable_publish_extrinsic" value="true" />
+      <arg name="color_depth_synchronization" value="true" />
+      <arg name="enable_d2c_viewer" value="false" />
+    </include>
+  </group>
 </launch>

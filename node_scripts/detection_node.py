@@ -278,82 +278,66 @@ class DetectionNode(object):
                         mocap.pose.position.y,
                         mocap.pose.position.z,
                     )
-                    # pixel coordinates of the wrist
-                    point_2d = self.camera_model.project3dToPixel(point_3d)
-                    # clip
-                    point_2d = (
-                        min(max(point_2d[0], 0), self.depth_image.shape[1] - 1),
-                        min(max(point_2d[1], 0), self.depth_image.shape[0] - 1),
-                    )
-                    depth = self.depth_image[int(point_2d[1]), int(point_2d[0])]
-                    if np.isnan(depth) or (depth == 0.0):
-                        if mocap.detection.label == "left_hand":
-                            if self.prev_left_wrist is None:
-                                continue
-                            else:
-                                wrist_cam = self.prev_left_wrist
+
+                    # Using ellipse fitting to estimate the wrist 3D position
+                    # Calculate 3D coordinates in the camera frame
+                    # x_cam = (point_2d[0] - self.camera_model.cx()) * depth / self.camera_model.fx() * self.camera_scale
+                    # y_cam = (point_2d[1] - self.camera_model.cy()) * depth / self.camera_model.fy() * self.camera_scale
+                    # z_cam = depth * self.camera_scale
+                    #
+                    # wrist_quat = np.array([mocap.pose.orientation.x,
+                    #                        mocap.pose.orientation.y,
+                    #                        mocap.pose.orientation.z,
+                    #                        mocap.pose.orientation.w])
+                    # wrist_rot = R.from_quat(wrist_quat).as_matrix()
+                    #
+                    # # wrist eclipse intersection plane
+                    # wrist_plane_normal = wrist_rot[:, 0]
+                    # wrist_y_axis = wrist_rot[:, 1]
+                    # wrist_z_axis = wrist_rot[:, 2]
+                    #
+                    # wrist_cam_orig = np.array([x_cam, y_cam, z_cam])
+                    # # view vector from the camera to the wrist
+                    # view_vector = wrist_cam_orig / np.linalg.norm(wrist_cam_orig)
+                    # # project the view vector to the wrist ellipse plane
+                    # view_vector_proj = view_vector - np.dot(view_vector, wrist_plane_normal) * wrist_plane_normal
+                    # view_vector_proj /= np.linalg.norm(view_vector_proj)
+                    #
+                    # intersection_angle = np.arccos(np.abs(np.dot(wrist_z_axis, view_vector_proj)))
+                    # # slope of incident ray (perpendicular to the tangent of the ellipse at the intersection point (x0, y0))
+                    # view_k = np.tan(intersection_angle)
+                    #
+                    # c = view_k * self.wrist_b ** 2 / self.wrist_a ** 2
+                    # # attention that x0 is along the z-axis of the wrist ellipse
+                    # x0 = np.sqrt(self.wrist_a ** 2 * self.wrist_b ** 2 / (self.wrist_b ** 2 + self.wrist_a ** 2 * c ** 2))
+                    # # y0 is along the y-axis of the wrist ellipse
+                    # y0 = c * x0
+                    #
+                    # # determine the sign of x0 and y0 (quadrant of (x0, y0) in the wrist ellipse frame)
+                    # if np.dot(view_vector_proj, wrist_z_axis) < 0:
+                    #     x0 = -x0
+                    # if np.dot(view_vector_proj, wrist_y_axis) < 0:
+                    #     y0 = -y0
+
+                    # translation to the wrist ellipse center
+                    # wrist_cam_new = wrist_cam_orig + wrist_rot @ np.array([0, y0, x0])
+                    # wrist_cam_new = np.array(point_3d)
+                    wrist_cam_new = np.array(point_3d)
+
+                    if mocap.detection.label == "left_hand":
+                        if self.prev_left_wrist is None:
+                            wrist_cam = wrist_cam_new
                         else:
-                            if self.prev_right_wrist is None:
-                                continue
-                            else:
-                                wrist_cam = self.prev_right_wrist
+                            # Exponential Moving Average (EMA) filter to avoid serious jitter and deal with temporary occlusion
+                            wrist_cam = self.ema_alpha * wrist_cam_new + (1 - self.ema_alpha) * self.prev_left_wrist
+                        self.prev_left_wrist = wrist_cam
                     else:
-                        # Calculate 3D coordinates in the camera frame
-                        x_cam = (point_2d[0] - self.camera_model.cx()) * depth / self.camera_model.fx() * self.camera_scale
-                        y_cam = (point_2d[1] - self.camera_model.cy()) * depth / self.camera_model.fy() * self.camera_scale
-                        z_cam = depth * self.camera_scale
-
-                        wrist_quat = np.array([mocap.pose.orientation.x,
-                                               mocap.pose.orientation.y,
-                                               mocap.pose.orientation.z,
-                                               mocap.pose.orientation.w])
-                        wrist_rot = R.from_quat(wrist_quat).as_matrix()
-
-                        # wrist eclipse intersection plane
-                        wrist_plane_normal = wrist_rot[:, 0]
-                        wrist_y_axis = wrist_rot[:, 1]
-                        wrist_z_axis = wrist_rot[:, 2]
-
-                        wrist_cam_orig = np.array([x_cam, y_cam, z_cam])
-                        # view vector from the camera to the wrist
-                        view_vector = wrist_cam_orig / np.linalg.norm(wrist_cam_orig)
-                        # project the view vector to the wrist ellipse plane
-                        view_vector_proj = view_vector - np.dot(view_vector, wrist_plane_normal) * wrist_plane_normal
-                        view_vector_proj /= np.linalg.norm(view_vector_proj)
-
-                        intersection_angle = np.arccos(np.abs(np.dot(wrist_z_axis, view_vector_proj)))
-                        # slope of incident ray (perpendicular to the tangent of the ellipse at the intersection point (x0, y0))
-                        view_k = np.tan(intersection_angle)
-
-                        c = view_k * self.wrist_b ** 2 / self.wrist_a ** 2
-                        # attention that x0 is along the z-axis of the wrist ellipse
-                        x0 = np.sqrt(self.wrist_a ** 2 * self.wrist_b ** 2 / (self.wrist_b ** 2 + self.wrist_a ** 2 * c ** 2))
-                        # y0 is along the y-axis of the wrist ellipse
-                        y0 = c * x0
-
-                        # determine the sign of x0 and y0 (quadrant of (x0, y0) in the wrist ellipse frame)
-                        if np.dot(view_vector_proj, wrist_z_axis) < 0:
-                            x0 = -x0
-                        if np.dot(view_vector_proj, wrist_y_axis) < 0:
-                            y0 = -y0
-
-                        # translation to the wrist ellipse center
-                        wrist_cam_new = wrist_cam_orig + wrist_rot @ np.array([0, y0, x0])
-
-                        if mocap.detection.label == "left_hand":
-                            if self.prev_left_wrist is None:
-                                wrist_cam = wrist_cam_new
-                            else:
-                                # Exponential Moving Average (EMA) filter to avoid serious jitter and deal with temporary occlusion
-                                wrist_cam = self.ema_alpha * wrist_cam_new + (1 - self.ema_alpha) * self.prev_left_wrist
-                            self.prev_left_wrist = wrist_cam
+                        if self.prev_right_wrist is None:
+                            wrist_cam = wrist_cam_new
                         else:
-                            if self.prev_right_wrist is None:
-                                wrist_cam = wrist_cam_new
-                            else:
-                                # Exponential Moving Average (EMA) filter to avoid serious jitter and deal with temporary occlusion
-                                wrist_cam = self.ema_alpha * wrist_cam_new + (1 - self.ema_alpha) * self.prev_right_wrist
-                            self.prev_right_wrist = wrist_cam
+                            # Exponential Moving Average (EMA) filter to avoid serious jitter and deal with temporary occlusion
+                            wrist_cam = self.ema_alpha * wrist_cam_new + (1 - self.ema_alpha) * self.prev_right_wrist
+                        self.prev_right_wrist = wrist_cam
 
                     self.tf_broadcaster.sendTransform(
                         (

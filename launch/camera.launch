@@ -1,0 +1,15 @@
+<launch>
+  <!-- Declare an argument for the camera type -->
+  <arg name="camera" default="realsense" />
+
+  <include if="$(arg camera) == 'realsense'" file="$(find realsense2_camera)/launch/rs_rgbd.launch">
+    <arg name="align_depth" value="true" />
+  </include>
+
+  <include if="$(arg camera) == 'astra'" file="$(find astra_camera)/launch/astra.launch">
+    <arg name="enable_publish_extrinsic" value="true" />
+    <arg name="color_depth_synchronization" value="true" />
+    <arg name="enable_d2c_viewer" value="false" />
+  </include>
+
+</launch>

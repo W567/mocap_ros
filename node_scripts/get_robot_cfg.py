@@ -216,6 +216,7 @@ with open(cfg_file_path, "w") as f:
         "mimic_joint_indices": mimic_joint_indices,
         "mimic_target_joint_indices": mimic_target_joint_indices,
         "tip_frames": tip_frames,
+        "tip_normals": tip_normals,
         "frame_names": pin_body_frame_names,
         "col_frame_pairs": col_frame_pairs,
         "urdf_joint_names": urdf_joint_names,
@@ -223,7 +224,6 @@ with open(cfg_file_path, "w") as f:
         "hand2mano": hand2mano,
         "mano_base_links": ["thumb1y", "index1y", "middle1y", "ring1y", "pinky1y"],
         "robot_base_links": robot_base_links,
-        "tip_normals": tip_normals,
     },
         f, default_flow_style=None, sort_keys=False)
 

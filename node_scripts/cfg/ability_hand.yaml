@@ -1,0 +1,28 @@
+total_joints: 10
+pin2urdf_joint_indices: [8, 9, 0, 1, 2, 3, 6, 7, 4, 5]
+mimic_joint_indices: [1, 3, 7, 5]
+mimic_target_joint_indices: [0, 2, 6, 4]
+mimic_multiplier: [1.05851325, 1.05851325, 1.05851325, 1.05851325]
+mimic_offset: [0.72349796, 0.72349796, 0.72349796, 0.72349796]
+mano_tip_frames: [index3, middle3, pinky3, ring3, thumb3]
+tip_frames: [index_tip, middle_tip, pinky_tip, ring_tip, thumb_tip]
+tip_normals:
+- [0.5, 0.8660254037844386, 0.0]
+- [0.5, 0.8660254037844386, 0.0]
+- [0.5, 0.8660254037844386, 0.0]
+- [0.5, 0.8660254037844386, 0.0]
+- [0.2588190451025208, 0.9659258262890684, 0.0]
+frame_names: [base_link, base, thumb_base, index_L1, index_L2, index_tip, middle_L1,
+  middle_L2, middle_tip, pinky_L1, pinky_L2, pinky_tip, ring_L1, ring_L2, ring_tip,
+  thumb_L1, thumb_L2, thumb_tip]
+col_frame_pairs: []
+urdf_joint_names: [thumb_q1, thumb_q2, index_q1, index_q2, middle_q1, middle_q2, ring_q1,
+  ring_q2, pinky_q1, pinky_q2]
+palm_frame: base_link
+hand2mano:
+- [0.03152791650338411, -0.20544236732039278, -0.9781612465185624, 0.010603199725564394]
+- [-0.9985486262059701, 0.03627969699530237, -0.03980483247169144, -0.010950133753799527]
+- [0.04366499265001677, 0.9779965323536282, -0.20400037039464455, 0.00839767121047106]
+- [0.0, 0.0, 0.0, 1.0]
+mano_base_links: [thumb1y, index1y, middle1y, ring1y, pinky1y]
+robot_base_links: [thumb_L1, index_L1, middle_L1, ring_L1, pinky_L1]

@@ -235,9 +235,9 @@ for axis in mano_axes:
     viewer.add(axis)
 for axis in mano_tip_axes:
     viewer.add(axis)
-for axis in robot_axes[-1:]:
+for axis in robot_axes:
     viewer.add(axis)
-for axis in tip_axes[-1:]:
+for axis in tip_axes:
     viewer.add(axis)
 viewer.show()
 

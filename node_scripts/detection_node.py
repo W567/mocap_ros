@@ -49,7 +49,7 @@ class DetectionNode(object):
         self.wrist_a = rospy.get_param("~wrist_a", 0.03)
         self.wrist_b = rospy.get_param("~wrist_b", 0.02)
 
-        self.ema_alpha = rospy.get_param("~ema_alpha", 0.1)
+        self.wrist_ema_alpha = rospy.get_param("~wrist_ema_alpha", 0.1)
         # TODO current only support one person
         self.prev_left_wrist = None
         self.prev_right_wrist = None
@@ -329,14 +329,14 @@ class DetectionNode(object):
                             wrist_cam = wrist_cam_new
                         else:
                             # Exponential Moving Average (EMA) filter to avoid serious jitter and deal with temporary occlusion
-                            wrist_cam = self.ema_alpha * wrist_cam_new + (1 - self.ema_alpha) * self.prev_left_wrist
+                            wrist_cam = self.wrist_ema_alpha * wrist_cam_new + (1 - self.wrist_ema_alpha) * self.prev_left_wrist
                         self.prev_left_wrist = wrist_cam
                     else:
                         if self.prev_right_wrist is None:
                             wrist_cam = wrist_cam_new
                         else:
                             # Exponential Moving Average (EMA) filter to avoid serious jitter and deal with temporary occlusion
-                            wrist_cam = self.ema_alpha * wrist_cam_new + (1 - self.ema_alpha) * self.prev_right_wrist
+                            wrist_cam = self.wrist_ema_alpha * wrist_cam_new + (1 - self.wrist_ema_alpha) * self.prev_right_wrist
                         self.prev_right_wrist = wrist_cam
 
                     self.tf_broadcaster.sendTransform(

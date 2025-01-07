@@ -18,10 +18,10 @@ class Tracker(OptIK):
     def __init__(self):
         rospy.init_node('tracker', anonymous=True)
 
-        robot = rospy.get_param('~robot', 'srh_float')
+        robot = rospy.get_param('robot', 'srh_float')
         tol = rospy.get_param('~tol', 1e-4)
         collision_threshold = rospy.get_param('~collision_threshold', 0.018)
-        nor_weight = rospy.get_param('~nor_weight', 0.01)
+        nor_weight = rospy.get_param('~nor_weight', 0.0)
         col_weight = rospy.get_param('~col_weight', 1.0)
         verbose = rospy.get_param('~verbose', False)
         with_collision = rospy.get_param('~with_collision', True)
@@ -73,6 +73,17 @@ class Tracker(OptIK):
             self.srh_joint_target.velocity = np.zeros(len(self.urdf_joint_names))
             self.srh_joint_target.effort = np.zeros(len(self.urdf_joint_names))
             self.srh_ctrl_pub = rospy.Publisher("srh_joint_target", JointState, queue_size=1)
+
+
+        self.track_finger_methods = [
+            self.track_thumb,
+            self.track_index,
+            self.track_middle,
+            self.track_ring,
+            self.track_pinky,
+        ]
+        # Here, we assume the fingers are disabled in a fixed order.
+        self.track_finger_methods = self.track_finger_methods[:self.num_fingers]
 
         rospy.loginfo("[Tracker] Initialized")
 
@@ -141,11 +152,8 @@ class Tracker(OptIK):
 
 
     def track_finger(self):
-        self.track_index()
-        self.track_middle()
-        self.track_ring()
-        self.track_pinky()
-        self.track_thumb()
+        for method in self.track_finger_methods:
+            method()
 
         # print("===========================================")
         # print("thumb")

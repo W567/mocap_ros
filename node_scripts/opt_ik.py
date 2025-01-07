@@ -207,7 +207,7 @@ class OptIK:
                 ## Normal gradient =====================================================================================
                 jacobians_omega = np.stack(jacobians_omega, axis=0)
                 tip_body_nor_tmp = tip_body_nor[:, :, np.newaxis]
-                tip_body_nor_tmp = np.repeat(tip_body_nor_tmp, 22, axis=2)
+                tip_body_nor_tmp = np.repeat(tip_body_nor_tmp, jacobians_omega.shape[2], axis=2)
 
                 dn_dq = np.cross(jacobians_omega, tip_body_nor_tmp, axis=1)
 

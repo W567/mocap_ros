@@ -1,5 +1,7 @@
 #!/usr/bin/env python
+import os
 import sys
+import yaml
 import select
 import numpy as np
 from scipy.spatial.transform import Rotation as R
@@ -9,16 +11,6 @@ import rospy
 from sensor_msgs.msg import JointState
 
 from opt_ik import OptIK
-
-
-
-def get_rot_angle(axis_orig, axis, plane_normal):
-    axis_orig = axis_orig / np.linalg.norm(axis_orig)
-    axis = axis / np.linalg.norm(axis)
-    plane_normal = plane_normal / np.linalg.norm(plane_normal)
-
-    axis_proj = axis - np.dot(axis, plane_normal) * plane_normal
-    return np.arccos(np.clip(np.dot(axis_orig, axis_proj), -1.0, 1.0))
 
 
 
@@ -45,7 +37,6 @@ class Tracker(OptIK):
             with_collision=with_collision
         )
 
-
         rate = rospy.get_param('~rate', 30.0)
         self.tracker_rate = rospy.Rate(rate)
 
@@ -57,19 +48,30 @@ class Tracker(OptIK):
         self.tf_broadcaster = tf.TransformBroadcaster()
         self.right_hand_joint_publisher = rospy.Publisher('/joint_states', JointState, queue_size=1)
 
+        # Mano hand tip normal (pulp direction) under tip local frame
+        self.mano_thu_nor = np.array([-0.47075654, -0.55634864, -0.68473679])
+        self.mano_fin_nor = np.array([0., -1., 0.])
+        self.mano_thu_nor /= np.linalg.norm(self.mano_thu_nor)
+        self.mano_fin_nor /= np.linalg.norm(self.mano_fin_nor)
+
+        current_path = os.path.dirname(os.path.realpath(__file__))
+        cfg_file_path = os.path.join(current_path, "cfg", f"{robot}.yaml")
+        with open(cfg_file_path, "r") as f:
+            cfg = yaml.load(f, Loader=yaml.SafeLoader)
+            self.urdf_joint_names = cfg['urdf_joint_names']
+            self.palm_frame = cfg['palm_frame']
+            self.hand2mano = cfg['hand2mano']
+            self.hand2mano = np.array(self.hand2mano).reshape(4, 4)
+
         self.prev_hand_qpos = np.zeros(22)
         self.finger_ema_alpha = rospy.get_param('~finger_ema_alpha', 0.9)
         if not self.sim:
+            # TODO not for sure if WRJ are required or not
             self.srh_joint_target = JointState()
-            self.srh_joint_target.name = ['rh_WRJ2', 'rh_WRJ1',
-                                'rh_FFJ4', 'rh_FFJ3', 'rh_FFJ2', 'rh_FFJ1',
-                                'rh_MFJ4', 'rh_MFJ3', 'rh_MFJ2', 'rh_MFJ1',
-                                'rh_RFJ4', 'rh_RFJ3', 'rh_RFJ2', 'rh_RFJ1',
-                                'rh_LFJ5', 'rh_LFJ4', 'rh_LFJ3', 'rh_LFJ2', 'rh_LFJ1',
-                                'rh_THJ5', 'rh_THJ4', 'rh_THJ3', 'rh_THJ2', 'rh_THJ1',]
-            self.srh_joint_target.position = np.zeros(24)
-            self.srh_joint_target.velocity = np.zeros(24)
-            self.srh_joint_target.effort = np.zeros(24)
+            self.srh_joint_target.name = self.urdf_joint_names
+            self.srh_joint_target.position = np.zeros(len(self.urdf_joint_names))
+            self.srh_joint_target.velocity = np.zeros(len(self.urdf_joint_names))
+            self.srh_joint_target.effort = np.zeros(len(self.urdf_joint_names))
             self.srh_ctrl_pub = rospy.Publisher("srh_joint_target", JointState, queue_size=1)
 
         rospy.loginfo("[Tracker] Initialized")
@@ -79,13 +81,12 @@ class Tracker(OptIK):
         try:
             (trans,rot) = self.tf_listener.lookupTransform(target_frame, source_frame, rospy.Time(0))
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
-            # rospy.logerr("[Tracker] Failed to lookup transform")
             trans = None
             rot = None
         return trans, rot
 
-    def track_body(self, publisher, body_name, base_name='/world'):
-        trans, rot = self.lookup_transform(base_name, body_name)
+    def track_body(self, base_name='/world'):
+        trans, rot = self.lookup_transform(base_name, 'right_hand/wrist')
         if trans is None or rot is None:
             return
         rotation = R.from_quat(rot)
@@ -93,63 +94,49 @@ class Tracker(OptIK):
         matrix[:3, :3] = rotation.as_matrix()
         matrix[:3, 3] = trans
 
-        if 'right_hand/wrist' in body_name:
-
-            srh2mano = np.array([
-                [-0.1254368, 0.07305742, -0.98940802, 0.00956725],
-                [0.05917042, 0.99606057, 0.06604704, -0.01125753],
-                [0.99033553, -0.05025896, -0.12926549, -0.00170861],
-                [0.0, 0.0, 0.0, 1.0]
-            ])
-
-            srh_palm_tf = matrix @ srh2mano
-            trans = srh_palm_tf[:3, 3]
-            quat = R.from_matrix(srh_palm_tf[:3, :3]).as_quat()
-
-            # publish tf of 'ik_palm' to be same with body_name relative to base_name
-            self.tf_broadcaster.sendTransform(trans, quat, rospy.Time.now(), 'rh_palm', base_name)
-        else:
-            raise NotImplementedError("Only right hand is supported")
-
+        hand_palm_tf = matrix @ self.hand2mano
+        trans = hand_palm_tf[:3, 3]
+        quat = R.from_matrix(hand_palm_tf[:3, :3]).as_quat()
+        self.tf_broadcaster.sendTransform(trans, quat, rospy.Time.now(), self.palm_frame, base_name)
 
     def track_index(self):
-        trans, rot = self.lookup_transform('rh_palm', 'right_hand/index3')
+        trans, rot = self.lookup_transform(self.palm_frame, 'right_hand/index3')
         if trans is None or rot is None:
             return
         self.ind_pos = np.array(trans)
-        self.ind_nor = -R.from_quat(rot).as_matrix()[:, 1]
+        self.ind_nor = R.from_quat(rot).as_matrix() @ self.mano_fin_nor
         self.ind_pos[1] *= 1.142
 
     def track_middle(self):
-        trans, rot = self.lookup_transform('rh_palm', '/right_hand/middle3')
+        trans, rot = self.lookup_transform(self.palm_frame, '/right_hand/middle3')
         if trans is None or rot is None:
             return
         self.mid_pos = np.array(trans)
-        self.mid_nor = -R.from_quat(rot).as_matrix()[:, 1]
+        self.mid_nor = R.from_quat(rot).as_matrix() @ self.mano_fin_nor
         self.mid_pos[1] *= 1.142
 
     def track_ring(self):
-        trans, rot = self.lookup_transform('rh_palm', '/right_hand/ring3')
+        trans, rot = self.lookup_transform(self.palm_frame, '/right_hand/ring3')
         if trans is None or rot is None:
             return
         self.rin_pos = np.array(trans)
-        self.rin_nor = -R.from_quat(rot).as_matrix()[:, 1]
+        self.rin_nor = R.from_quat(rot).as_matrix() @ self.mano_fin_nor
         self.rin_pos[1] *= 1.142
 
     def track_pinky(self):
-        trans, rot = self.lookup_transform('rh_palm', '/right_hand/pinky3')
+        trans, rot = self.lookup_transform(self.palm_frame, '/right_hand/pinky3')
         if trans is None or rot is None:
             return
         self.lit_pos = np.array(trans)
-        self.lit_nor = -R.from_quat(rot).as_matrix()[:, 1]
+        self.lit_nor = R.from_quat(rot).as_matrix() @ self.mano_fin_nor
         self.lit_pos[1] *= 1.142
 
     def track_thumb(self):
-        trans, rot = self.lookup_transform('rh_palm', '/right_hand/thumb3')
+        trans, rot = self.lookup_transform(self.palm_frame, '/right_hand/thumb3')
         if trans is None or rot is None:
             return
         self.thu_pos = np.array(trans)
-        self.thu_nor = -R.from_quat(rot).as_matrix()[:, 1]
+        self.thu_nor = R.from_quat(rot).as_matrix() @ self.mano_thu_nor
         self.thu_pos[1] *= 1.142
 
 
@@ -188,15 +175,10 @@ class Tracker(OptIK):
         else:
             msg = JointState()
             msg.header.stamp = rospy.Time.now()
-            msg.name = ['rh_FFJ4', 'rh_FFJ3', 'rh_FFJ2', 'rh_FFJ1',
-                        'rh_MFJ4', 'rh_MFJ3', 'rh_MFJ2', 'rh_MFJ1',
-                        'rh_RFJ4', 'rh_RFJ3', 'rh_RFJ2', 'rh_RFJ1',
-                        'rh_LFJ5', 'rh_LFJ4', 'rh_LFJ3', 'rh_LFJ2', 'rh_LFJ1',
-                        'rh_THJ5', 'rh_THJ4', 'rh_THJ3', 'rh_THJ2', 'rh_THJ1']
+            msg.name = self.urdf_joint_names
 
             msg.position = ema_hand_qpos
             self.right_hand_joint_publisher.publish(msg)
-
 
 
     def execute(self):
@@ -220,7 +202,7 @@ class Tracker(OptIK):
                     break
 
             if self.tracking_hand:
-                self.track_body(None, 'right_hand/wrist', base_name='/camera_color_optical_frame')
+                self.track_body(base_name='/camera_color_optical_frame')
             if self.tracking_finger:
                 self.track_finger()
 

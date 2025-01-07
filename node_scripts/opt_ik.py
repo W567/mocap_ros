@@ -37,6 +37,7 @@ class OptIK:
             cfg = yaml.load(f, Loader=yaml.SafeLoader)
             self.total_joints = cfg["total_joints"]
             self.pin2urdf_joint_indices = cfg["pin2urdf_joint_indices"]
+            self.mano_tip_frames = cfg["mano_tip_frames"]
             self.tip_frames = cfg["tip_frames"]
             self.mimic_joint_indices = np.array(cfg["mimic_joint_indices"])
             self.mimic_target_joint_indices = np.array(cfg["mimic_target_joint_indices"])

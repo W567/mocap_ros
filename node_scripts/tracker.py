@@ -21,7 +21,7 @@ class Tracker(OptIK):
         robot = rospy.get_param('robot', 'srh_float')
         tol = rospy.get_param('~tol', 1e-4)
         collision_threshold = rospy.get_param('~collision_threshold', 0.018)
-        nor_weight = rospy.get_param('~nor_weight', 0.0)
+        nor_weight = rospy.get_param('~nor_weight', 0.01)
         col_weight = rospy.get_param('~col_weight', 1.0)
         verbose = rospy.get_param('~verbose', False)
         with_collision = rospy.get_param('~with_collision', True)

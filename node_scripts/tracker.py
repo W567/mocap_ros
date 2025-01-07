@@ -63,7 +63,7 @@ class Tracker(OptIK):
             self.hand2mano = cfg['hand2mano']
             self.hand2mano = np.array(self.hand2mano).reshape(4, 4)
 
-        self.prev_hand_qpos = np.zeros(22)
+        self.prev_hand_qpos = np.zeros(len(self.urdf_joint_names))
         self.finger_ema_alpha = rospy.get_param('~finger_ema_alpha', 0.9)
         if not self.sim:
             # TODO not for sure if WRJ are required or not

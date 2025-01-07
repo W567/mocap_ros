@@ -141,7 +141,7 @@ class OptIK:
         def objective(x: np.ndarray, grad: np.ndarray) -> float:
             qpos = x.copy()
             # Set the mimic joints to the previous joint angles
-            if self.mimic_joint_indices:
+            if len(self.mimic_joint_indices) > 0:
                 qpos[self.mimic_joint_indices] = (
                         qpos[self.mimic_target_joint_indices] * self.mimic_multiplier + self.mimic_offset
                 )

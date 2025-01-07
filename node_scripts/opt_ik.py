@@ -70,7 +70,8 @@ class OptIK:
 
         if self.with_collision:
             self.col_frame_pairs = np.array(self.col_frame_pairs)
-            assert self.col_frame_pairs.shape[1] == 2, "Invalid collision frame pairs shape, should be (n, 2)"
+            if len(self.col_frame_pairs) > 0:
+                assert self.col_frame_pairs.shape[1] == 2, "Invalid collision frame pairs shape, should be (n, 2)"
             self.col_frame_pair_indices = [(self.model.getFrameId(frame1, pin.BODY), self.model.getFrameId(frame2, pin.BODY))
                                            for frame1, frame2 in self.col_frame_pairs]
             self.col_frame_pair_indices = np.array(self.col_frame_pair_indices)

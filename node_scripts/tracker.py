@@ -58,7 +58,7 @@ class Tracker(OptIK):
         self.right_hand_joint_publisher = rospy.Publisher('/joint_states', JointState, queue_size=1)
 
         self.prev_hand_qpos = np.zeros(22)
-        self.ema_theta = 0.9
+        self.finger_ema_alpha = rospy.get_param('~finger_ema_alpha', 0.9)
         if not self.sim:
             self.srh_joint_target = JointState()
             self.srh_joint_target.name = ['rh_WRJ2', 'rh_WRJ1',

@@ -29,29 +29,13 @@ class OptIK:
         self.model = pin.buildModelFromUrdf("/home/wu/catkin_ws/src/mine/robot_models/srh_float/urdf/srh_float.urdf")
         self.data = self.model.createData()
 
-        # ['universe',
-        #  'rh_FFJ4', 'rh_FFJ3', 'rh_FFJ2', 'rh_FFJ1',   # 0-3
-        #  'rh_LFJ5', 'rh_LFJ4', 'rh_LFJ3', 'rh_LFJ2', 'rh_LFJ1', # 4-8
-        #  'rh_MFJ4', 'rh_MFJ3', 'rh_MFJ2', 'rh_MFJ1', # 9-12
-        #  'rh_RFJ4', 'rh_RFJ3', 'rh_RFJ2', 'rh_RFJ1', # 13-16
-        #  'rh_THJ5', 'rh_THJ4', 'rh_THJ3', 'rh_THJ2', 'rh_THJ1'] # 17-21
-        self.names = [self.model.names[i] for i in range(len(self.model.names))]
         lower_limits = []
         upper_limits = []
         for joint_id in range(1, self.model.njoints):
-            # joint_name = self.model.names[joint_id]  # Retrieve the joint name from the names list
             lower_limit = self.model.lowerPositionLimit[joint_id - 1]
             upper_limit = self.model.upperPositionLimit[joint_id - 1]
             lower_limits.append(lower_limit)
             upper_limits.append(upper_limit)
-
-        frame_names = []
-        for frame_id in range(self.model.nframes):
-            frame_name = self.model.frames[frame_id].name  # Retrieve the frame name
-            frame_names.append(frame_name)
-        #     frame = self.model.frames[frame_id]
-        #     print(f"Name: {frame.name}, Type: {frame.type}")
-        # print(frame_names)
 
         self.total_joint_angles = 22
         self.tip_frames = ["rh_fftip", "rh_lftip", "rh_mftip", "rh_rftip", "rh_thtip"]
@@ -140,14 +124,18 @@ class OptIK:
         pin.updateFramePlacements(self.model, self.data)
 
 
+    def get_frame_pose(self, frame):
+        frame_id = self.model.getFrameId(frame, pin.BODY)
+        pose = np.eye(4)
+        pose[:3, :3] = self.data.oMf[frame_id].rotation
+        pose[:3, 3] = self.data.oMf[frame_id].translation
+        return pose
+
+
     def get_frame_poses(self, frames):
         poses = []
         for fr in frames:
-            fr_id = self.model.getFrameId(fr, pin.BODY)
-            # Get the frame position (translation) and orientation (rotation matrix)
-            pose = np.eye(4)
-            pose[:3, :3] = self.data.oMf[fr_id].rotation
-            pose[:3, 3] = self.data.oMf[fr_id].translation
+            pose = self.get_frame_pose(fr)
             poses.append(pose)
         return poses
 
@@ -155,6 +143,12 @@ class OptIK:
     def compute_jacobian(self, q,  frame):
         """
         Compute the Jacobian matrix for the fingertip given joint angles using Pinocchio.
+
+            The LOCAL_WORLD_ALIGNED frame convention corresponds to the frame centered
+            on the moving part (Joint, Frame, etc.) but with axes aligned with the frame of the Universe.
+            This a MIXED representation between the LOCAL and the WORLD conventions.
+            https://docs.ros.org/en/kinetic/api/pinocchio/html/group__pinocchio__multibody.html
+
         Args:
             q: Joint angles.
             frame: Frame name.

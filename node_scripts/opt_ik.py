@@ -303,6 +303,7 @@ class OptIK:
             res = self.opt.optimize(self.last_qpos)
             # Set the mimic joints to the previous joint angles
             res[self.mimic_joint_indices] = res[self.mimic_target_joint_indices] * self.mimic_multiplier + self.mimic_offset
+            res = np.clip(res, self.model.lowerPositionLimit, self.model.upperPositionLimit)
             self.last_qpos = res
 
             return res[self.pin2urdf_joint_indices]

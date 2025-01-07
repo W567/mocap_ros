@@ -20,6 +20,7 @@ ros_package = rospkg.RosPack()
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("-r", "--robot", type=str, default="srh_float")
+parser.add_argument("--left", action="store_true", help="Use left hand")
 args = parser.parse_args()
 
 
@@ -203,6 +204,13 @@ _, robot_base_poses = get_link_bases(robot_model, robot_base_links)
 robot_tip_links = tip_frames
 link_names = [robot_model.link_list[i].name for i in range(len(robot_model.link_list))]
 tip_ids = [link_names.index(link) for link in robot_tip_links]
+
+
+if args.left:
+    # The mano urdf model is right hand, so we need to flip mano_base_poses on all axes
+    mano_base_poses[:, 0] *= -1
+    mano_base_poses[:, 1] *= -1
+    mano_base_poses[:, 2] *= -1
 
 
 # move robot_base_poses to mano_base_poses

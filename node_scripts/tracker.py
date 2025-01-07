@@ -18,13 +18,23 @@ class Tracker(OptIK):
     def __init__(self):
         rospy.init_node('tracker', anonymous=True)
 
-        robot = rospy.get_param('robot', 'srh_float')
+        robot = rospy.get_param('~robot', 'srh_float')
         tol = rospy.get_param('~tol', 1e-4)
         collision_threshold = rospy.get_param('~collision_threshold', 0.018)
         nor_weight = rospy.get_param('~nor_weight', 0.01)
         col_weight = rospy.get_param('~col_weight', 1.0)
         verbose = rospy.get_param('~verbose', False)
         with_collision = rospy.get_param('~with_collision', True)
+
+        double = rospy.get_param('~double', False)
+        left_hand = rospy.get_param('~left_hand', False)
+        self.hand_prefix = '/left' if left_hand else '/right'
+        if double:
+            self.joint_state_prefix = '/slh' if left_hand else '/srh'
+        else:
+            self.joint_state_prefix = ''
+        rospy.logwarn(f"Hand prefix: {self.hand_prefix}")
+        rospy.logwarn(f"Joint state prefix: {self.joint_state_prefix}")
 
         OptIK.__init__(
             self,
@@ -46,7 +56,7 @@ class Tracker(OptIK):
 
         self.tf_listener = tf.TransformListener()
         self.tf_broadcaster = tf.TransformBroadcaster()
-        self.hand_joint_publisher = rospy.Publisher('/joint_states', JointState, queue_size=1)
+        self.hand_joint_publisher = rospy.Publisher(self.joint_state_prefix + '/joint_states', JointState, queue_size=1)
 
         # Mano hand tip normal (pulp direction) under tip local frame
         self.mano_thu_nor = np.array([-0.47075654, -0.55634864, -0.68473679])
@@ -97,7 +107,7 @@ class Tracker(OptIK):
         return trans, rot
 
     def track_body(self, base_name='/world'):
-        trans, rot = self.lookup_transform(base_name, 'right_hand/wrist')
+        trans, rot = self.lookup_transform(base_name, self.hand_prefix + '_hand/wrist')
         if trans is None or rot is None:
             return
         rotation = R.from_quat(rot)
@@ -111,7 +121,7 @@ class Tracker(OptIK):
         self.tf_broadcaster.sendTransform(trans, quat, rospy.Time.now(), self.palm_frame, base_name)
 
     def track_index(self):
-        trans, rot = self.lookup_transform(self.palm_frame, 'right_hand/index3')
+        trans, rot = self.lookup_transform(self.palm_frame, self.hand_prefix + '_hand/index3')
         if trans is None or rot is None:
             return
         self.index_pos = np.array(trans)
@@ -119,7 +129,7 @@ class Tracker(OptIK):
         self.index_pos[1] *= 1.142
 
     def track_middle(self):
-        trans, rot = self.lookup_transform(self.palm_frame, '/right_hand/middle3')
+        trans, rot = self.lookup_transform(self.palm_frame, self.hand_prefix + '_hand/middle3')
         if trans is None or rot is None:
             return
         self.middle_pos = np.array(trans)
@@ -127,7 +137,7 @@ class Tracker(OptIK):
         self.middle_pos[1] *= 1.142
 
     def track_ring(self):
-        trans, rot = self.lookup_transform(self.palm_frame, '/right_hand/ring3')
+        trans, rot = self.lookup_transform(self.palm_frame, self.hand_prefix + '_hand/ring3')
         if trans is None or rot is None:
             return
         self.ring_pos = np.array(trans)
@@ -135,7 +145,7 @@ class Tracker(OptIK):
         self.ring_pos[1] *= 1.142
 
     def track_pinky(self):
-        trans, rot = self.lookup_transform(self.palm_frame, '/right_hand/pinky3')
+        trans, rot = self.lookup_transform(self.palm_frame, self.hand_prefix + '_hand/pinky3')
         if trans is None or rot is None:
             return
         self.pinky_pos = np.array(trans)
@@ -143,7 +153,7 @@ class Tracker(OptIK):
         self.pinky_pos[1] *= 1.142
 
     def track_thumb(self):
-        trans, rot = self.lookup_transform(self.palm_frame, '/right_hand/thumb3')
+        trans, rot = self.lookup_transform(self.palm_frame, self.hand_prefix + '_hand/thumb3')
         if trans is None or rot is None:
             return
         self.thumb_pos = np.array(trans)

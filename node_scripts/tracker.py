@@ -179,7 +179,7 @@ class Tracker(OptIK):
 
         hand_qpos = self.optimize()
 
-        ema_hand_qpos = self.ema_theta * self.prev_hand_qpos + (1 - self.ema_theta) * hand_qpos
+        ema_hand_qpos = self.finger_ema_alpha * self.prev_hand_qpos + (1 - self.finger_ema_alpha) * hand_qpos
         self.prev_hand_qpos = ema_hand_qpos
 
         if not self.sim:

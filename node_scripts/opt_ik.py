@@ -41,6 +41,7 @@ class OptIK:
             self.mimic_joint_indices = np.array(cfg["mimic_joint_indices"])
             self.mimic_target_joint_indices = np.array(cfg["mimic_target_joint_indices"])
             self.col_frame_pairs = cfg["col_frame_pairs"]
+            self.tip_normals = np.array(cfg["tip_normals"])[..., np.newaxis]
 
         num_fingers = len(self.tip_frames)
         assert num_fingers <= 5, "Too many fingers, only support up to 5 fingers"
@@ -104,7 +105,7 @@ class OptIK:
         for fr in frames:
             pose = self.get_frame_pose(fr)
             poses.append(pose)
-        return poses
+        return np.array(poses)
 
 
     def compute_jacobian(self, q,  frame):
@@ -139,14 +140,14 @@ class OptIK:
 
             ## Position distance =======================================================================================
             actual_tip_poses = self.get_frame_poses(fingertip_frames)
-            tip_body_pos = np.array([pose[:3, 3] for pose in actual_tip_poses])
+            tip_body_pos = actual_tip_poses[:, :3, 3]
             torch_tip_body_pos = torch.as_tensor(tip_body_pos)
             torch_tip_body_pos.requires_grad_()
             pos_dist = torch.norm(torch_tip_body_pos - desired_positions, dim=1, keepdim=False).sum()
             ## Position distance =======================================================================================
 
             ## Normal distance =========================================================================================
-            tip_body_nor = np.array([pose[:3, :3] @ np.array([0, -1, 0]) for pose in actual_tip_poses])
+            tip_body_nor = (actual_tip_poses[:, :3, :3] @ self.tip_normals).squeeze(-1)
             torch_tip_body_nor = torch.as_tensor(tip_body_nor)
             nor_dist = (1 - torch.sum(torch_tip_body_nor * desired_normals, dim=1)).sum()
             pos_dist += nor_dist * self.nor_weight

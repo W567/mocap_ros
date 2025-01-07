@@ -243,6 +243,10 @@ for axis in robot_axes:
     viewer.add(axis)
 for axis in tip_axes:
     viewer.add(axis)
+mapped_robot_palm_axis = Axis(axis_radius=0.001, axis_length=0.025)
+co = Coordinates(pos=mapped_palm_pos, rot=quaternion2matrix(mapped_palm_quat[[3, 0, 1, 2]]))
+mapped_robot_palm_axis.newcoords(co)
+viewer.add(mapped_robot_palm_axis)
 viewer.show()
 
 

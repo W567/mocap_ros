@@ -159,7 +159,7 @@ class OptIK:
             col_cost = None
             col_indices = []
             torch_frame_rela_position = None
-            if self.with_collision:
+            if self.with_collision and len(self.col_frame_pairs) > 0:
                 # Frame positions for collision checking
                 frame_positions = {frame_id: self.data.oMf[int(frame_id)].translation
                                    for frame_id in self.unique_col_frame_pair_indices}

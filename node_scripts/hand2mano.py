@@ -29,6 +29,7 @@ cfg_file_path = os.path.join(cfg_folder_path, f"{args.robot}.yaml")
 if os.path.exists(cfg_file_path):
     with open(cfg_file_path, "r") as f:
         cfg = yaml.load(f, Loader=yaml.SafeLoader)
+        mano_tip_frames = cfg['mano_tip_frames']
         tip_frames = cfg['tip_frames']
         palm_frame = cfg['palm_frame']
         mano_base_links = cfg['mano_base_links']
@@ -133,9 +134,8 @@ set_robot_state(mano_model, mano_joint_names, mano_joint_angles, default_pose)
 
 mano_axes, mano_base_poses = get_link_bases(mano_model, mano_base_links)
 
-mano_tip_links = ["thumb3", "index3", "middle3", "ring3", "pinky3"]
 mano_link_names = [mano_model.link_list[i].name for i in range(len(mano_model.link_list))]
-mano_tip_ids = [mano_link_names.index(link) for link in mano_tip_links]
+mano_tip_ids = [mano_link_names.index(link) for link in mano_tip_frames]
 mano_tip_xyzs = np.array([mano_model.link_list[i].worldcoords().translation for i in mano_tip_ids])
 mano_tip_rots = np.array([mano_model.link_list[i].worldcoords().rotation for i in mano_tip_ids])
 mano_tip_axes = []
@@ -235,18 +235,18 @@ for axis in mano_axes:
     viewer.add(axis)
 for axis in mano_tip_axes:
     viewer.add(axis)
-for axis in robot_axes:
+for axis in robot_axes[-1:]:
     viewer.add(axis)
-for axis in tip_axes:
+for axis in tip_axes[-1:]:
     viewer.add(axis)
 viewer.show()
 
 
-srh_length = []
-for i, (srh_base_axis, srh_tip_axis) in enumerate(zip(robot_axes, tip_axes)):
-    length = np.linalg.norm(srh_base_axis.worldcoords().translation - srh_tip_axis.worldcoords().translation)
-    srh_length.append(length)
-srh_length = np.array(srh_length)
+robot_length = []
+for i, (robot_base_axis, robot_tip_axis) in enumerate(zip(robot_axes, tip_axes)):
+    length = np.linalg.norm(robot_base_axis.worldcoords().translation - robot_tip_axis.worldcoords().translation)
+    robot_length.append(length)
+robot_length = np.array(robot_length)
 
 mano_length = []
 for i, (mano_base_axis, mano_tip_axis) in enumerate(zip(mano_axes, mano_tip_axes)):
@@ -255,12 +255,14 @@ for i, (mano_base_axis, mano_tip_axis) in enumerate(zip(mano_axes, mano_tip_axes
 mano_length = np.array(mano_length)
 
 print(f"{args.robot} finger lengths")
-print(np.array2string(srh_length, separator=', '))
+print(tip_frames)
+print(np.array2string(robot_length, separator=', '))
 print("mano hand finger lengths")
+print(mano_tip_frames)
 print(np.array2string(mano_length, separator=', '))
 
 print(f" ============== finger length scale {args.robot} / mano ============== ")
-print(srh_length / mano_length)
+print(robot_length / mano_length)
 
 input(f"{bcolors.OKCYAN}Press any key to exit...{bcolors.ENDC}")
 

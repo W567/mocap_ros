@@ -179,12 +179,18 @@ if os.path.exists(cfg_file_path):
             tip_normals = exist_content["tip_normals"]
         except Exception as e:
             tip_normals = []
+
+        try:
+            mano_tip_frames = exist_content["mano_tip_frames"]
+        except Exception as e:
+            mano_tip_frames = []
 else:
     col_frame_pairs = []
     palm_frame = ""
     hand2mano = []
     robot_base_links = []
     tip_normals = []
+    mano_tip_frames = []
 
 if not col_frame_pairs:
     print(f"{bcolors.OKYELLOW}[Warning] Collision pairs are not defined in the configuration\n"
@@ -209,12 +215,18 @@ if not tip_normals:
           f"Please fill in the tip_normals with the normal vectors of each fingertip in its local frame "
           f"based on the URDF model (normal here is pointing along pulp)\n{bcolors.ENDC}")
 
+if not mano_tip_frames:
+    mano_tip_frames = ["thumb3", "index3", "middle3", "ring3", "pinky3"]
+    print(f"{bcolors.OKYELLOW}[Warning] Using default mano tip frames in the configuration\n"
+          f"Please reorder it to match with the robot tip frames\n{bcolors.ENDC}")
+
 with open(cfg_file_path, "w") as f:
     yaml.safe_dump({
         "total_joints": total_joints,
         "pin2urdf_joint_indices": pin2urdf_indices,
         "mimic_joint_indices": mimic_joint_indices,
         "mimic_target_joint_indices": mimic_target_joint_indices,
+        "mano_tip_frames": mano_tip_frames,
         "tip_frames": tip_frames,
         "tip_normals": tip_normals,
         "frame_names": pin_body_frame_names,

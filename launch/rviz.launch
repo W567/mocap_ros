@@ -9,7 +9,7 @@
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find mocap_ros)/rviz/$(arg type).rviz" required="true" />
 
   <arg name="robot" default="srh_float" />
-  <arg name="urdf" default="false" />
+  <arg name="urdf" default="true" />
 
   <param name="robot_description"
          command="$(find xacro)/xacro $(find robot_models)/$(arg robot)/urdf/$(arg robot).urdf.xacro"

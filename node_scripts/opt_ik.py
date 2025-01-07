@@ -47,7 +47,7 @@ class OptIK:
 
         self.num_fingers = len(self.tip_frames)
         assert self.num_fingers <= 5, "Too many fingers, only support up to 5 fingers"
-        finger_name_prefixes = ["thu", "ind", "mid", "rin", "lit"]
+        finger_name_prefixes = ["thumb", "index", "middle", "ring", "pinky"]
         for finger in finger_name_prefixes[:self.num_fingers]:
             setattr(self, f"{finger}_pos", np.zeros(3))
             setattr(self, f"{finger}_nor", np.zeros(3))
@@ -253,47 +253,47 @@ class OptIK:
     def set_target(self, idx=0):
         # open hand
         if idx == 0:
-            self.ind_pos = np.array([0.033, 0.0, 0.191])
-            self.ind_nor = np.array([0.0, -1.0, 0.0])
-            self.lit_pos = np.array([-0.033, 0.0, 0.1826])
-            self.lit_nor = np.array([0.0, -1.0, 0.0])
-            self.mid_pos = np.array([0.011, 0.0, 0.195])
-            self.mid_nor = np.array([0.0, -1.0, 0.0])
-            self.rin_pos = np.array([-0.011, 0.0, 0.191])
-            self.rin_nor = np.array([0.0, -1.0, 0.0])
-            self.thu_pos = np.array([0.10294291, -0.00858, 0.09794291])
-            self.thu_nor = np.array([-0.70710678, 0.0, 0.70710678])
+            self.index_pos = np.array([0.033, 0.0, 0.191])
+            self.index_nor = np.array([0.0, -1.0, 0.0])
+            self.pinky_pos = np.array([-0.033, 0.0, 0.1826])
+            self.pinky_nor = np.array([0.0, -1.0, 0.0])
+            self.middle_pos = np.array([0.011, 0.0, 0.195])
+            self.middle_nor = np.array([0.0, -1.0, 0.0])
+            self.ring_pos = np.array([-0.011, 0.0, 0.191])
+            self.ring_nor = np.array([0.0, -1.0, 0.0])
+            self.thumb_pos = np.array([0.10294291, -0.00858, 0.09794291])
+            self.thumb_nor = np.array([-0.70710678, 0.0, 0.70710678])
         # envelop
         elif idx == 1:
-            self.ind_pos = np.array([0.04012684, -0.04272182, 0.15803178])
-            self.ind_nor = np.array([-0.30107772, -0.43725329, -0.84744425])
-            self.mid_pos = np.array([0.00327784, -0.05243527, 0.151299])
-            self.mid_nor = np.array([0.12893927, -0.02844863, -0.99124434])
-            self.rin_pos = np.array([-0.02002411, -0.05031957, 0.14441163])
-            self.rin_nor = np.array([0.35844603, -0.06347011, -0.93139035])
-            self.lit_pos = np.array([-0.04417813, -0.04551897, 0.1227557])
-            self.lit_nor = np.array([0.33163346, -0.41941064, -0.84505264])
-            self.thu_pos = np.array([0.04887634, -0.07812261, 0.08955634])
-            self.thu_nor = np.array([-0.73207116, -0.54427482, -0.40967881])
+            self.index_pos = np.array([0.04012684, -0.04272182, 0.15803178])
+            self.index_nor = np.array([-0.30107772, -0.43725329, -0.84744425])
+            self.middle_pos = np.array([0.00327784, -0.05243527, 0.151299])
+            self.middle_nor = np.array([0.12893927, -0.02844863, -0.99124434])
+            self.ring_pos = np.array([-0.02002411, -0.05031957, 0.14441163])
+            self.ring_nor = np.array([0.35844603, -0.06347011, -0.93139035])
+            self.pinky_pos = np.array([-0.04417813, -0.04551897, 0.1227557])
+            self.pinky_nor = np.array([0.33163346, -0.41941064, -0.84505264])
+            self.thumb_pos = np.array([0.04887634, -0.07812261, 0.08955634])
+            self.thumb_nor = np.array([-0.73207116, -0.54427482, -0.40967881])
         # collision
         elif idx == 2:
-            self.ind_pos = np.array([0.024, -0.058, 0.169])
-            self.ind_nor = np.array([-0.30107772, -0.43725329, -0.84744425])
-            self.mid_pos = np.array([0.019, -0.055, 0.168])
-            self.mid_nor = np.array([0.12893927, -0.02844863, -0.99124434])
-            self.rin_pos = np.array([-0.02002411, -0.05031957, 0.14441163])
-            self.rin_nor = np.array([0.35844603, -0.06347011, -0.93139035])
-            self.lit_pos = np.array([-0.04417813, -0.04551897, 0.1227557])
-            self.lit_nor = np.array([0.33163346, -0.41941064, -0.84505264])
-            self.thu_pos = np.array([0.04887634, -0.07812261, 0.08955634])
-            self.thu_nor = np.array([-0.73207116, -0.54427482, -0.40967881])
+            self.index_pos = np.array([0.024, -0.058, 0.169])
+            self.index_nor = np.array([-0.30107772, -0.43725329, -0.84744425])
+            self.middle_pos = np.array([0.019, -0.055, 0.168])
+            self.middle_nor = np.array([0.12893927, -0.02844863, -0.99124434])
+            self.ring_pos = np.array([-0.02002411, -0.05031957, 0.14441163])
+            self.ring_nor = np.array([0.35844603, -0.06347011, -0.93139035])
+            self.pinky_pos = np.array([-0.04417813, -0.04551897, 0.1227557])
+            self.pinky_nor = np.array([0.33163346, -0.41941064, -0.84505264])
+            self.thumb_pos = np.array([0.04887634, -0.07812261, 0.08955634])
+            self.thumb_nor = np.array([-0.73207116, -0.54427482, -0.40967881])
         else:
             raise ValueError("Invalid target index")
 
 
     def optimize(self):
-        desired_positions = np.array([self.ind_pos, self.lit_pos, self.mid_pos, self.rin_pos, self.thu_pos])
-        desired_normals = np.array([self.ind_nor, self.lit_nor, self.mid_nor, self.rin_nor, self.thu_nor])
+        desired_positions = np.array([self.index_pos, self.pinky_pos, self.middle_pos, self.ring_pos, self.thumb_pos])
+        desired_normals = np.array([self.index_nor, self.pinky_nor, self.middle_nor, self.ring_nor, self.thumb_nor])
 
         # Set objective function
         self.opt.set_min_objective(

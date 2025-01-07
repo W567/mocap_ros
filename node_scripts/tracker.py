@@ -114,41 +114,41 @@ class Tracker(OptIK):
         trans, rot = self.lookup_transform(self.palm_frame, 'right_hand/index3')
         if trans is None or rot is None:
             return
-        self.ind_pos = np.array(trans)
-        self.ind_nor = R.from_quat(rot).as_matrix() @ self.mano_fin_nor
-        self.ind_pos[1] *= 1.142
+        self.index_pos = np.array(trans)
+        self.index_nor = R.from_quat(rot).as_matrix() @ self.mano_fin_nor
+        self.index_pos[1] *= 1.142
 
     def track_middle(self):
         trans, rot = self.lookup_transform(self.palm_frame, '/right_hand/middle3')
         if trans is None or rot is None:
             return
-        self.mid_pos = np.array(trans)
-        self.mid_nor = R.from_quat(rot).as_matrix() @ self.mano_fin_nor
-        self.mid_pos[1] *= 1.142
+        self.middle_pos = np.array(trans)
+        self.middle_nor = R.from_quat(rot).as_matrix() @ self.mano_fin_nor
+        self.middle_pos[1] *= 1.142
 
     def track_ring(self):
         trans, rot = self.lookup_transform(self.palm_frame, '/right_hand/ring3')
         if trans is None or rot is None:
             return
-        self.rin_pos = np.array(trans)
-        self.rin_nor = R.from_quat(rot).as_matrix() @ self.mano_fin_nor
-        self.rin_pos[1] *= 1.142
+        self.ring_pos = np.array(trans)
+        self.ring_nor = R.from_quat(rot).as_matrix() @ self.mano_fin_nor
+        self.ring_pos[1] *= 1.142
 
     def track_pinky(self):
         trans, rot = self.lookup_transform(self.palm_frame, '/right_hand/pinky3')
         if trans is None or rot is None:
             return
-        self.lit_pos = np.array(trans)
-        self.lit_nor = R.from_quat(rot).as_matrix() @ self.mano_fin_nor
-        self.lit_pos[1] *= 1.142
+        self.pinky_pos = np.array(trans)
+        self.pinky_nor = R.from_quat(rot).as_matrix() @ self.mano_fin_nor
+        self.pinky_pos[1] *= 1.142
 
     def track_thumb(self):
         trans, rot = self.lookup_transform(self.palm_frame, '/right_hand/thumb3')
         if trans is None or rot is None:
             return
-        self.thu_pos = np.array(trans)
-        self.thu_nor = R.from_quat(rot).as_matrix() @ self.mano_thu_nor
-        self.thu_pos[1] *= 1.142
+        self.thumb_pos = np.array(trans)
+        self.thumb_nor = R.from_quat(rot).as_matrix() @ self.mano_thu_nor
+        self.thumb_pos[1] *= 1.142
 
 
     def track_finger(self):
@@ -157,20 +157,20 @@ class Tracker(OptIK):
 
         # print("===========================================")
         # print("thumb")
-        # print(np.array2string(self.thu_pos, separator=', '))
-        # print(np.array2string(self.thu_nor, separator=', '))
+        # print(np.array2string(self.thumb_pos, separator=', '))
+        # print(np.array2string(self.thumb_nor, separator=', '))
         # print("index")
-        # print(np.array2string(self.ind_pos, separator=', '))
-        # print(np.array2string(self.ind_nor, separator=', '))
+        # print(np.array2string(self.index_pos, separator=', '))
+        # print(np.array2string(self.index_nor, separator=', '))
         # print("middle")
-        # print(np.array2string(self.mid_pos, separator=', '))
-        # print(np.array2string(self.mid_nor, separator=', '))
+        # print(np.array2string(self.middle_pos, separator=', '))
+        # print(np.array2string(self.middle_nor, separator=', '))
         # print("ring")
-        # print(np.array2string(self.rin_pos, separator=', '))
-        # print(np.array2string(self.rin_nor, separator=', '))
+        # print(np.array2string(self.ring_pos, separator=', '))
+        # print(np.array2string(self.ring_nor, separator=', '))
         # print("little")
-        # print(np.array2string(self.lit_pos, separator=', '))
-        # print(np.array2string(self.lit_nor, separator=', '))
+        # print(np.array2string(self.pinky_pos, separator=', '))
+        # print(np.array2string(self.pinky_nor, separator=', '))
 
         hand_qpos = self.optimize()
 

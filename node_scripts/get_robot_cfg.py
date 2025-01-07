@@ -3,6 +3,7 @@ import yaml
 import rospkg
 import pinocchio as pin
 from urdfpy import URDF
+from bcolors import bcolors
 
 import argparse
 parser = argparse.ArgumentParser()
@@ -40,7 +41,8 @@ for joint in urdf_model.joints:
         mimic_target_joint_names.append(joint.mimic.joint)
 
 if 'srh' in args.robot or 'slh' in args.robot:
-    print("[Warning] Using default mimic joint names for Shadow hand (Since not defined in URDF)")
+    print(f"{bcolors.OKYELLOW}[Warning] Using default mimic joint names for Shadow hand."
+          f"(Since not defined in URDF){bcolors.ENDC}")
     mimic_joint_names = ["rh_FFJ1", "rh_MFJ1", "rh_RFJ1", "rh_LFJ1"]
     mimic_target_joint_names = ["rh_FFJ2", "rh_MFJ2", "rh_RFJ2", "rh_LFJ2"]
 
@@ -49,7 +51,7 @@ print(urdf_joint_names)
 
 
 if pin_joint_names[0] == "universe":
-    print("[Warning] First joint in pinocchio model is universe, remove from list")
+    print(f"{bcolors.OKYELLOW}[Warning] First joint in pinocchio model is universe, remove from list{bcolors.ENDC}")
     pin_joint_names = pin_joint_names[1:]
 
 total_joints = len(pin_joint_names)
@@ -145,7 +147,8 @@ if not os.path.exists(cfg_folder_path):
 
 cfg_file_path = os.path.join(cfg_folder_path, f"{args.robot}.yaml")
 if os.path.exists(cfg_file_path):
-    user_input = input("The configuration file already exists, QUIT (q) or REWRITE (any key else) >> ")
+    user_input = input(f"{bcolors.OKCYAN}The configuration file already exists,"
+                       f"QUIT (q) or REWRITE (any key else) >> {bcolors.ENDC}")
     if user_input == "q":
         exit()
     else:
@@ -172,16 +175,17 @@ else:
     hand2mano = []
 
 if not col_frame_pairs:
-    print("[Warning] Collision pairs are not defined in the configuration\n"
-          "Please fill in the col_frame_pairs taking the reference to the existed link frame_names")
+    print(f"{bcolors.OKYELLOW}[Warning] Collision pairs are not defined in the configuration\n"
+          f"Please fill in the col_frame_pairs taking the reference to the existed link frame_names\n{bcolors.ENDC}")
 
 if palm_frame == "":
-    print("[Warning] Palm frame is not defined in the configuration\n"
-          "Please fill in the palm_frame taking the reference to the existed link frame_names")
+    print(f"{bcolors.OKYELLOW}[Warning] Palm frame is not defined in the configuration\n"
+          f"Please fill in the palm_frame taking the reference to the existed link frame_names\n{bcolors.ENDC}")
 
 if not hand2mano:
-    print("[Warning] Hand2mano is not defined in the configuration\n"
-          "Please fill in the hand2mano with the transform matrix to align finger root joints to that of mano hand")
+    print(f"{bcolors.OKYELLOW}[Warning] Hand2mano is not defined in the configuration\n"
+          f"Please fill in the hand2mano with the transform matrix (4x4) "
+          f"to align finger root joints to that of mano hand\n{bcolors.ENDC}")
 
 with open(cfg_file_path, "w") as f:
     yaml.safe_dump({

@@ -1,0 +1,39 @@
+total_joints: 16
+pin2urdf_joint_indices: [0, 1, 2, 3, 8, 9, 10, 11, 12, 13, 14, 15, 4, 5, 6, 7]
+mimic_joint_indices: []
+mimic_target_joint_indices: []
+mimic_multiplier: []
+mimic_offset: []
+mano_tip_frames: [index3, thumb3, middle3, ring3]
+tip_frames: [link_3.0_tip, link_15.0_tip, link_7.0_tip, link_11.0_tip]
+tip_normals:
+- [1.0, 0.0, 0.0]
+- [1.0, 0.0, 0.0]
+- [1.0, 0.0, 0.0]
+- [1.0, 0.0, 0.0]
+frame_names: [base_link, link_0.0, link_1.0, link_2.0, link_3.0, link_3.0_tip, link_12.0,
+  link_13.0, link_14.0, link_15.0, link_15.0_tip, link_4.0, link_5.0, link_6.0, link_7.0,
+  link_7.0_tip, link_8.0, link_9.0, link_10.0, link_11.0, link_11.0_tip, palm, wrist]
+col_frame_pairs:
+- [link_3.0, link_7.0]
+- [link_7.0, link_11.0]
+- [link_2.0, link_6.0]
+- [link_6.0, link_10.0]
+- [link_15.0, link_3.0]
+- [link_15.0, link_7.0]
+- [link_15.0, link_11.0]
+- [link_3.0, link_6.0]
+- [link_7.0, link_2.0]
+- [link_7.0, link_10.0]
+- [link_11.0, link_6.0]
+urdf_joint_names: [joint_0.0, joint_1.0, joint_2.0, joint_3.0, joint_4.0, joint_5.0,
+  joint_6.0, joint_7.0, joint_8.0, joint_9.0, joint_10.0, joint_11.0, joint_12.0,
+  joint_13.0, joint_14.0, joint_15.0]
+palm_frame: base_link
+hand2mano:
+- [-0.20223592696160816, 0.0970190555927225, -0.9745193341837171, -0.09273680202996235]
+- [-0.9783941716548201, -0.06366504158408921, 0.1967018234586921, -0.002551826844518235]
+- [-0.04295898878997615, 0.9932442123324922, 0.10779823723118219, -0.007224540450605162]
+- [0.0, 0.0, 0.0, 1.0]
+mano_base_links: [thumb1y, index1y, middle1y, ring1y]
+robot_base_links: [link_13.0, link_0.0, link_4.0, link_8.0]

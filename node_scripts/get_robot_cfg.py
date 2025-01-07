@@ -82,7 +82,7 @@ for joint in urdf_model.joints:
 mimic_multiplier = []
 mimic_offset = []
 for joint_name in mimic_joint_names:
-    index = urdf_joint_names.index(joint_name)
+    index = urdf_joint_names_all.index(joint_name)
     mimic_multiplier.append(urdf_mimic_multiplier[index])
     mimic_offset.append(urdf_mimic_offset[index])
 
@@ -100,6 +100,8 @@ for joint_name in mimic_target_joint_names:
     mimic_target_joint_indices.append(index)
 
 print("--- mimic_target_joint_indices: \n", mimic_target_joint_indices)
+print("--- mimic multiplier: \n", mimic_multiplier)
+print("--- mimic offset: \n", mimic_offset)
 print("\n")
 
 
@@ -166,7 +168,7 @@ if not os.path.exists(cfg_folder_path):
 
 cfg_file_path = os.path.join(cfg_folder_path, f"{args.robot}.yaml")
 if os.path.exists(cfg_file_path):
-    user_input = input(f"{bcolors.OKCYAN}The configuration file already exists,"
+    user_input = input(f"{bcolors.OKCYAN}The configuration file already exists, "
                        f"QUIT (q) or REWRITE (any key else) >> {bcolors.ENDC}")
     if user_input == "q":
         exit()

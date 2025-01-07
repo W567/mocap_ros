@@ -28,7 +28,6 @@ class OptIK:
         # Load the robot model
         self.model = pin.buildModelFromUrdf("/home/wu/catkin_ws/src/mine/robot_models/srh_float/urdf/srh_float.urdf")
         self.data = self.model.createData()
-        pin.neutral(self.model)
 
         # ['universe',
         #  'rh_FFJ4', 'rh_FFJ3', 'rh_FFJ2', 'rh_FFJ1',   # 0-3

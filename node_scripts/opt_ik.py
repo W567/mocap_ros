@@ -157,7 +157,7 @@ class OptIK:
 
             ## Collision Cost ==========================================================================================
             col_cost = None
-            col_indices = None
+            col_indices = []
             torch_frame_rela_position = None
             if self.with_collision:
                 # Frame positions for collision checking

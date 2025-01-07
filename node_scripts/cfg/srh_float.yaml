@@ -40,3 +40,9 @@ hand2mano:
 - [0.0, 0.0, 0.0, 1.0]
 mano_base_links: [thumb1y, index1y, middle1y, ring1y, pinky1y]
 robot_base_links: [rh_thbase, rh_ffknuckle, rh_mfknuckle, rh_rfknuckle, rh_lfknuckle]
+tip_normals:
+- [0.0, -1.0, 0.0]
+- [0.0, -1.0, 0.0]
+- [0.0, -1.0, 0.0]
+- [0.0, -1.0, 0.0]
+- [0.0, -1.0, 0.0]

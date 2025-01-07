@@ -174,11 +174,17 @@ if os.path.exists(cfg_file_path):
             robot_base_links = exist_content["robot_base_links"]
         except Exception as e:
             robot_base_links = []
+
+        try:
+            tip_normals = exist_content["tip_normals"]
+        except Exception as e:
+            tip_normals = []
 else:
     col_frame_pairs = []
     palm_frame = ""
     hand2mano = []
     robot_base_links = []
+    tip_normals = []
 
 if not col_frame_pairs:
     print(f"{bcolors.OKYELLOW}[Warning] Collision pairs are not defined in the configuration\n"
@@ -198,6 +204,11 @@ if not robot_base_links:
           f"Please fill in the robot_base_links with the root frame names of the each finger of robot\n{bcolors.ENDC}, "
           f"with same finger order as mano_base_links")
 
+if not tip_normals:
+    print(f"{bcolors.OKYELLOW}[Warning] Tip normals are not defined in the configuration\n"
+          f"Please fill in the tip_normals with the normal vectors of each fingertip in its local frame "
+          f"based on the URDF model (normal here is pointing along pulp)\n{bcolors.ENDC}")
+
 with open(cfg_file_path, "w") as f:
     yaml.safe_dump({
         "total_joints": total_joints,
@@ -212,6 +223,7 @@ with open(cfg_file_path, "w") as f:
         "hand2mano": hand2mano,
         "mano_base_links": ["thumb1y", "index1y", "middle1y", "ring1y", "pinky1y"],
         "robot_base_links": robot_base_links,
+        "tip_normals": tip_normals,
     },
         f, default_flow_style=None, sort_keys=False)
 

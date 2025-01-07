@@ -1,0 +1,31 @@
+total_joints: 22
+pin2urdf_joint_indices: [0, 1, 2, 3, 9, 10, 11, 12, 13, 14, 15, 16, 4, 5, 6, 7, 8,
+  17, 18, 19, 20, 21]
+mimic_joint_indices: [3, 12, 16, 8]
+mimic_target_joint_indices: [2, 11, 15, 7]
+tip_frames: [rh_fftip, rh_lftip, rh_mftip, rh_rftip, rh_thtip]
+frame_names: [rh_palm, ik_palm, rh_ffknuckle, rh_ffproximal, rh_ffmiddle, rh_ffdistal,
+  rh_fftip, rh_lfmetacarpal, rh_lfknuckle, rh_lfproximal, rh_lfmiddle, rh_lfdistal,
+  rh_lftip, rh_mfknuckle, rh_mfproximal, rh_mfmiddle, rh_mfdistal, rh_mftip, rh_rfknuckle,
+  rh_rfproximal, rh_rfmiddle, rh_rfdistal, rh_rftip, rh_thbase, rh_thproximal, rh_thhub,
+  rh_thmiddle, rh_thdistal, rh_thtip]
+col_frame_pairs:
+- [rh_rftip, rh_lftip]
+- [rh_ffdistal, rh_mfdistal]
+- [rh_mfdistal, rh_rfdistal]
+- [rh_rfdistal, rh_lfdistal]
+- [rh_ffmiddle, rh_mfmiddle]
+- [rh_mfmiddle, rh_rfmiddle]
+- [rh_rfmiddle, rh_lfmiddle]
+- [rh_ffmiddle, rh_mfdistal]
+- [rh_mfmiddle, rh_rfdistal]
+- [rh_rfmiddle, rh_lfdistal]
+- [rh_ffdistal, rh_mfmiddle]
+- [rh_mfdistal, rh_rfmiddle]
+- [rh_rfdistal, rh_lfmiddle]
+- [rh_lfproximal, rh_rfmiddle]
+- [rh_lfproximal, rh_rfproximal]
+- [rh_thdistal, rh_ffmiddle]
+- [rh_thdistal, rh_mfmiddle]
+- [rh_thdistal, rh_rfmiddle]
+- [rh_thdistal, rh_lfmiddle]

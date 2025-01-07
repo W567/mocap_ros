@@ -169,10 +169,16 @@ if os.path.exists(cfg_file_path):
             hand2mano = exist_content["hand2mano"]
         except Exception as e:
             hand2mano = []
+
+        try:
+            robot_base_links = exist_content["robot_base_links"]
+        except Exception as e:
+            robot_base_links = []
 else:
     col_frame_pairs = []
     palm_frame = ""
     hand2mano = []
+    robot_base_links = []
 
 if not col_frame_pairs:
     print(f"{bcolors.OKYELLOW}[Warning] Collision pairs are not defined in the configuration\n"
@@ -187,6 +193,11 @@ if not hand2mano:
           f"Please fill in the hand2mano with the transform matrix (4x4) "
           f"to align finger root joints to that of mano hand\n{bcolors.ENDC}")
 
+if not robot_base_links:
+    print(f"{bcolors.OKYELLOW}[Warning] Robot base links are not defined in the configuration\n"
+          f"Please fill in the robot_base_links with the root frame names of the each finger of robot\n{bcolors.ENDC}, "
+          f"with same finger order as mano_base_links")
+
 with open(cfg_file_path, "w") as f:
     yaml.safe_dump({
         "total_joints": total_joints,
@@ -199,6 +210,9 @@ with open(cfg_file_path, "w") as f:
         "urdf_joint_names": urdf_joint_names,
         "palm_frame": palm_frame,
         "hand2mano": hand2mano,
+        "mano_base_links": ["thumb1y", "index1y", "middle1y", "ring1y", "pinky1y"],
+        "robot_base_links": robot_base_links,
     },
         f, default_flow_style=None, sort_keys=False)
 
+print(f"{bcolors.OKGREEN}Configuration file is saved at {cfg_file_path}{bcolors.ENDC}")

@@ -228,7 +228,7 @@ if palm_frame == "":
 
 if not hand2mano:
     print(f"{bcolors.OKYELLOW}[Warning] Hand2mano is not defined in the configuration\n"
-          f"Please fill in the hand2mano with the transform matrix (4x4) "
+          f"Please run hand2mano.py to fill in the hand2mano with the transform matrix (4x4) "
           f"to align finger root joints to that of mano hand\n{bcolors.ENDC}")
 
 if not robot_base_links:

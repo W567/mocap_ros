@@ -118,7 +118,7 @@ def svd_based_transformation(source_points, target_points):
 
 
 default_pose = np.array([0,0,0,0,0,0,1])
-
+# We adopt the mano urdf model from: https://github.com/YuyangLee/mano-urdf.git
 mano_model_path = ros_package.get_path("robot_models") + "/mano/urdf/mano.urdf"
 mano_model = skrobot.models.urdf.RobotModelFromURDF(urdf_file=str(mano_model_path))
 set_model_color(mano_model, [0.5, 0.5, 0.0, 0.5])

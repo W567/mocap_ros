@@ -45,6 +45,9 @@ class OptIK:
             self.col_frame_pairs = cfg["col_frame_pairs"]
             self.tip_normals = np.array(cfg["tip_normals"])[..., np.newaxis]
 
+        self.tip_pos_vars = [tip_frame[:-1] + "_pos" for tip_frame in self.mano_tip_frames]
+        self.tip_nor_vars = [tip_frame[:-1] + "_nor" for tip_frame in self.mano_tip_frames]
+
         self.num_fingers = len(self.tip_frames)
         assert self.num_fingers <= 5, "Too many fingers, only support up to 5 fingers"
         finger_name_prefixes = ["thumb", "index", "middle", "ring", "pinky"]

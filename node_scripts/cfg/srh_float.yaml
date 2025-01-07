@@ -29,3 +29,12 @@ col_frame_pairs:
 - [rh_thdistal, rh_mfmiddle]
 - [rh_thdistal, rh_rfmiddle]
 - [rh_thdistal, rh_lfmiddle]
+urdf_joint_names: [rh_FFJ4, rh_FFJ3, rh_FFJ2, rh_FFJ1, rh_MFJ4, rh_MFJ3, rh_MFJ2,
+  rh_MFJ1, rh_RFJ4, rh_RFJ3, rh_RFJ2, rh_RFJ1, rh_LFJ5, rh_LFJ4, rh_LFJ3, rh_LFJ2,
+  rh_LFJ1, rh_THJ5, rh_THJ4, rh_THJ3, rh_THJ2, rh_THJ1]
+palm_frame: rh_palm
+hand2mano:
+- [-0.1254368, 0.07305742, -0.98940802, 0.00956725]
+- [0.05917042, 0.99606057, 0.06604704, -0.01125753]
+- [0.99033553, -0.05025896, -0.12926549, -0.00170861]
+- [0.0, 0.0, 0.0, 1.0]

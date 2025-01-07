@@ -156,13 +156,32 @@ if os.path.exists(cfg_file_path):
             col_frame_pairs = exist_content["col_frame_pairs"]
         except Exception as e:
             col_frame_pairs = []
+
+        try:
+            palm_frame = exist_content["palm_frame"]
+        except Exception as e:
+            palm_frame = ""
+
+        try:
+            hand2mano = exist_content["hand2mano"]
+        except Exception as e:
+            hand2mano = []
 else:
     col_frame_pairs = []
+    palm_frame = ""
+    hand2mano = []
 
 if not col_frame_pairs:
     print("[Warning] Collision pairs are not defined in the configuration\n"
           "Please fill in the col_frame_pairs taking the reference to the existed link frame_names")
 
+if palm_frame == "":
+    print("[Warning] Palm frame is not defined in the configuration\n"
+          "Please fill in the palm_frame taking the reference to the existed link frame_names")
+
+if not hand2mano:
+    print("[Warning] Hand2mano is not defined in the configuration\n"
+          "Please fill in the hand2mano with the transform matrix to align finger root joints to that of mano hand")
 
 with open(cfg_file_path, "w") as f:
     yaml.safe_dump({
@@ -172,7 +191,10 @@ with open(cfg_file_path, "w") as f:
         "mimic_target_joint_indices": mimic_target_joint_indices,
         "tip_frames": tip_frames,
         "frame_names": pin_body_frame_names,
-        "col_frame_pairs": col_frame_pairs
+        "col_frame_pairs": col_frame_pairs,
+        "urdf_joint_names": urdf_joint_names,
+        "palm_frame": palm_frame,
+        "hand2mano": hand2mano,
     },
         f, default_flow_style=None, sort_keys=False)
 

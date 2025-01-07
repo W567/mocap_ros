@@ -46,7 +46,7 @@ class Tracker(OptIK):
 
         self.tf_listener = tf.TransformListener()
         self.tf_broadcaster = tf.TransformBroadcaster()
-        self.right_hand_joint_publisher = rospy.Publisher('/joint_states', JointState, queue_size=1)
+        self.hand_joint_publisher = rospy.Publisher('/joint_states', JointState, queue_size=1)
 
         # Mano hand tip normal (pulp direction) under tip local frame
         self.mano_thu_nor = np.array([-0.47075654, -0.55634864, -0.68473679])
@@ -186,7 +186,7 @@ class Tracker(OptIK):
             msg.name = self.urdf_joint_names
 
             msg.position = ema_hand_qpos
-            self.right_hand_joint_publisher.publish(msg)
+            self.hand_joint_publisher.publish(msg)
 
 
     def execute(self):

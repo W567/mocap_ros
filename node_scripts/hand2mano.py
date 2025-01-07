@@ -145,6 +145,10 @@ shifts = -np.array([[-0.026, -0.003, 0.024],
                     [-0.026, 0.004, -0.004],
                     [-0.024, 0.004, -0.007],
                     [-0.018, 0.002, -0.010]])
+# The current mano urdf has no tip frames, has to shift from the distal joint (link)
+original_frames_for_shift = ["thumb3", "index3", "middle3", "ring3", "pinky3"]
+reorder_indices = [original_frames_for_shift.index(frame) for frame in mano_tip_frames]
+shifts = shifts[reorder_indices]
 
 for i, (xyz, rot) in enumerate(zip(mano_tip_xyzs, mano_tip_rots)):
     tip_axis = Axis(axis_radius=0.001, axis_length=0.01)

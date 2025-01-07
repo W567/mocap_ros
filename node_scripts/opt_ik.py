@@ -309,7 +309,7 @@ class OptIK:
         try:
             res = self.opt.optimize(self.last_qpos)
             # Set the mimic joints to the previous joint angles
-            if self.mimic_joint_indices:
+            if len(self.mimic_joint_indices) > 0:
                 res[self.mimic_joint_indices] = (
                         res[self.mimic_target_joint_indices] * self.mimic_multiplier + self.mimic_offset
                 )

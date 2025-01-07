@@ -1,6 +1,7 @@
 import os
 import yaml
 import numpy as np
+from urdfpy import URDF
 from typing import List
 from scipy.spatial.transform import Rotation as R
 
@@ -159,10 +160,38 @@ for i, (xyz, rot) in enumerate(zip(mano_tip_xyzs, mano_tip_rots)):
 
 
 robot_model_path = ros_package.get_path("robot_models") + f"/{args.robot}/urdf/{args.robot}.urdf"
+
+urdf_model = URDF.load(robot_model_path)
+urdf_joint_names = [urdf_model.joints[i].name for i in range(len(urdf_model.joints))]
+
+## If mimic joint exists in the robot urdf model, when setting joint angles using skrobot,
+## mimic multiplier and offset should be considered.
+urdf_mimic_multiplier = []
+urdf_mimic_offset = []
+for joint in urdf_model.joints:
+    if joint.mimic is not None:
+        urdf_mimic_multiplier.append(joint.mimic.multiplier)
+        urdf_mimic_offset.append(joint.mimic.offset)
+    else:
+        urdf_mimic_multiplier.append(1.0)
+        urdf_mimic_offset.append(0.0)
+
+
 robot_model = skrobot.models.urdf.RobotModelFromURDF(urdf_file=str(robot_model_path))
 set_model_color(robot_model, [0.5, 0.5, 0.5, 0.5])
 robot_joint_names = [robot_model.joint_list[i].name for i in range(len(robot_model.joint_list))]
 robot_joint_angles = np.zeros(len(robot_joint_names))
+
+mimic_multiplier = []
+mimic_offset = []
+for joint_name in robot_joint_names:
+    index = urdf_joint_names.index(joint_name)
+    mimic_multiplier.append(urdf_mimic_multiplier[index])
+    mimic_offset.append(urdf_mimic_offset[index])
+mimic_multiplier = np.array(mimic_multiplier)
+mimic_offset = np.array(mimic_offset)
+
+robot_joint_angles = mimic_multiplier * robot_joint_angles + mimic_offset
 
 set_robot_state(robot_model, robot_joint_names, robot_joint_angles, default_pose)
 _, robot_base_poses = get_link_bases(robot_model, robot_base_links)

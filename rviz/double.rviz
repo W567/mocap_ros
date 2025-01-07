@@ -1,0 +1,751 @@
+Panels:
+  - Class: rviz/Displays
+    Help Height: 78
+    Name: Displays
+    Property Tree Widget:
+      Expanded:
+        - /Global Options1
+        - /Status1
+        - /TF1/Frames1
+        - /Image1
+        - /RobotModel1
+        - /RobotModel2
+      Splitter Ratio: 0.5
+    Tree Height: 702
+  - Class: rviz/Selection
+    Name: Selection
+  - Class: rviz/Tool Properties
+    Expanded:
+      - /2D Pose Estimate1
+      - /2D Nav Goal1
+      - /Publish Point1
+    Name: Tool Properties
+    Splitter Ratio: 0.5886790156364441
+  - Class: rviz/Views
+    Expanded:
+      - /Current View1
+    Name: Views
+    Splitter Ratio: 0.5
+  - Class: rviz/Time
+    Name: Time
+    SyncMode: 0
+    SyncSource: PointCloud2
+Preferences:
+  PromptSaveOnExit: true
+Toolbars:
+  toolButtonStyle: 2
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Alpha: 0.5
+      Cell Size: 1
+      Class: rviz/Grid
+      Color: 160; 160; 164
+      Enabled: true
+      Line Style:
+        Line Width: 0.029999999329447746
+        Value: Lines
+      Name: Grid
+      Normal Cell Count: 0
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Plane: XY
+      Plane Cell Count: 10
+      Reference Frame: <Fixed Frame>
+      Value: true
+    - Class: rviz/TF
+      Enabled: true
+      Filter (blacklist): ""
+      Filter (whitelist): ""
+      Frame Timeout: 1
+      Frames:
+        All Enabled: false
+        camera_aligned_depth_to_color_frame:
+          Value: false
+        camera_color_frame:
+          Value: false
+        camera_color_optical_frame:
+          Value: true
+        camera_depth_frame:
+          Value: false
+        camera_depth_optical_frame:
+          Value: false
+        camera_link:
+          Value: false
+        ik_palm:
+          Value: true
+        left_hand/index0:
+          Value: true
+        left_hand/index1:
+          Value: true
+        left_hand/index2:
+          Value: true
+        left_hand/index3:
+          Value: true
+        left_hand/middle0:
+          Value: true
+        left_hand/middle1:
+          Value: true
+        left_hand/middle2:
+          Value: true
+        left_hand/middle3:
+          Value: true
+        left_hand/pinky0:
+          Value: true
+        left_hand/pinky1:
+          Value: true
+        left_hand/pinky2:
+          Value: true
+        left_hand/pinky3:
+          Value: true
+        left_hand/ring0:
+          Value: true
+        left_hand/ring1:
+          Value: true
+        left_hand/ring2:
+          Value: true
+        left_hand/ring3:
+          Value: true
+        left_hand/thumb0:
+          Value: true
+        left_hand/thumb1:
+          Value: true
+        left_hand/thumb2:
+          Value: true
+        left_hand/thumb3:
+          Value: true
+        left_hand/wrist:
+          Value: true
+        lh_ffdistal:
+          Value: true
+        lh_fftip:
+          Value: true
+        lh_imu:
+          Value: true
+        lh_lfdistal:
+          Value: true
+        lh_lftip:
+          Value: true
+        lh_manipulator:
+          Value: true
+        lh_mfdistal:
+          Value: true
+        lh_mftip:
+          Value: true
+        lh_palm:
+          Value: true
+        lh_rfdistal:
+          Value: true
+        lh_rftip:
+          Value: true
+        lh_thdistal:
+          Value: true
+        lh_thtip:
+          Value: true
+        rh_ffdistal:
+          Value: true
+        rh_fftip:
+          Value: true
+        rh_lfdistal:
+          Value: true
+        rh_lftip:
+          Value: true
+        rh_mfdistal:
+          Value: true
+        rh_mftip:
+          Value: true
+        rh_palm:
+          Value: true
+        rh_rfdistal:
+          Value: true
+        rh_rftip:
+          Value: true
+        rh_thdistal:
+          Value: true
+        rh_thtip:
+          Value: true
+        right_hand/index0:
+          Value: true
+        right_hand/index1:
+          Value: true
+        right_hand/index2:
+          Value: true
+        right_hand/index3:
+          Value: true
+        right_hand/middle0:
+          Value: true
+        right_hand/middle1:
+          Value: true
+        right_hand/middle2:
+          Value: true
+        right_hand/middle3:
+          Value: true
+        right_hand/pinky0:
+          Value: true
+        right_hand/pinky1:
+          Value: true
+        right_hand/pinky2:
+          Value: true
+        right_hand/pinky3:
+          Value: true
+        right_hand/ring0:
+          Value: true
+        right_hand/ring1:
+          Value: true
+        right_hand/ring2:
+          Value: true
+        right_hand/ring3:
+          Value: true
+        right_hand/thumb0:
+          Value: true
+        right_hand/thumb1:
+          Value: true
+        right_hand/thumb2:
+          Value: true
+        right_hand/thumb3:
+          Value: true
+        right_hand/wrist:
+          Value: true
+      Marker Alpha: 1
+      Marker Scale: 0.10000000149011612
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: false
+      Tree:
+        camera_link:
+          camera_aligned_depth_to_color_frame:
+            camera_color_optical_frame:
+              left_hand/wrist:
+                left_hand/index0:
+                  left_hand/index1:
+                    left_hand/index2:
+                      left_hand/index3:
+                        {}
+                left_hand/middle0:
+                  left_hand/middle1:
+                    left_hand/middle2:
+                      left_hand/middle3:
+                        {}
+                left_hand/pinky0:
+                  left_hand/pinky1:
+                    left_hand/pinky2:
+                      left_hand/pinky3:
+                        {}
+                left_hand/ring0:
+                  left_hand/ring1:
+                    left_hand/ring2:
+                      left_hand/ring3:
+                        {}
+                left_hand/thumb0:
+                  left_hand/thumb1:
+                    left_hand/thumb2:
+                      left_hand/thumb3:
+                        {}
+              rh_palm:
+                ik_palm:
+                  {}
+              right_hand/wrist:
+                right_hand/index0:
+                  right_hand/index1:
+                    right_hand/index2:
+                      right_hand/index3:
+                        {}
+                right_hand/middle0:
+                  right_hand/middle1:
+                    right_hand/middle2:
+                      right_hand/middle3:
+                        {}
+                right_hand/pinky0:
+                  right_hand/pinky1:
+                    right_hand/pinky2:
+                      right_hand/pinky3:
+                        {}
+                right_hand/ring0:
+                  right_hand/ring1:
+                    right_hand/ring2:
+                      right_hand/ring3:
+                        {}
+                right_hand/thumb0:
+                  right_hand/thumb1:
+                    right_hand/thumb2:
+                      right_hand/thumb3:
+                        {}
+          camera_color_frame:
+            {}
+          camera_depth_frame:
+            camera_depth_optical_frame:
+              {}
+        lh_ffdistal:
+          lh_fftip:
+            {}
+        lh_lfdistal:
+          lh_lftip:
+            {}
+        lh_mfdistal:
+          lh_mftip:
+            {}
+        lh_palm:
+          lh_imu:
+            {}
+          lh_manipulator:
+            {}
+        lh_rfdistal:
+          lh_rftip:
+            {}
+        lh_thdistal:
+          lh_thtip:
+            {}
+        rh_ffdistal:
+          rh_fftip:
+            {}
+        rh_lfdistal:
+          rh_lftip:
+            {}
+        rh_mfdistal:
+          rh_mftip:
+            {}
+        rh_rfdistal:
+          rh_rftip:
+            {}
+        rh_thdistal:
+          rh_thtip:
+            {}
+      Update Interval: 0
+      Value: true
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: RGB8
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Min Color: 0; 0; 0
+      Name: PointCloud2
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.009999999776482582
+      Style: Points
+      Topic: /camera/depth_registered/points
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
+    - Class: rviz/Image
+      Enabled: true
+      Image Topic: /detection_node/debug_image
+      Max Value: 1
+      Median window: 5
+      Min Value: 0
+      Name: Image
+      Normalize Range: true
+      Queue Size: 2
+      Transport Hint: raw
+      Unreliable: false
+      Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /tip_arrow
+      Name: MarkerArray
+      Namespaces:
+        tip_arrow_array: true
+      Queue Size: 100
+      Value: true
+    - Alpha: 1
+      Class: rviz/RobotModel
+      Collision Enabled: false
+      Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+        ik_palm:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        rh_ffdistal:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rh_ffknuckle:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rh_ffmiddle:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rh_ffproximal:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rh_fftip:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        rh_lfdistal:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rh_lfknuckle:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rh_lfmetacarpal:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rh_lfmiddle:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rh_lfproximal:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rh_lftip:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        rh_mfdistal:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rh_mfknuckle:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rh_mfmiddle:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rh_mfproximal:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rh_mftip:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        rh_palm:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rh_rfdistal:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rh_rfknuckle:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rh_rfmiddle:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rh_rfproximal:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rh_rftip:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        rh_thbase:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rh_thdistal:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rh_thhub:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rh_thmiddle:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rh_thproximal:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rh_thtip:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+      Name: RobotModel
+      Robot Description: /srh/robot_description
+      TF Prefix: ""
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
+    - Alpha: 1
+      Class: rviz/RobotModel
+      Collision Enabled: false
+      Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+        ik_palm:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        lh_ffdistal:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        lh_ffknuckle:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        lh_ffmiddle:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        lh_ffproximal:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        lh_fftip:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        lh_imu:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        lh_lfdistal:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        lh_lfknuckle:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        lh_lfmetacarpal:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        lh_lfmiddle:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        lh_lfproximal:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        lh_lftip:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        lh_manipulator:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        lh_mfdistal:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        lh_mfknuckle:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        lh_mfmiddle:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        lh_mfproximal:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        lh_mftip:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        lh_palm:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        lh_rfdistal:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        lh_rfknuckle:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        lh_rfmiddle:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        lh_rfproximal:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        lh_rftip:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        lh_thbase:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        lh_thdistal:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        lh_thhub:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        lh_thmiddle:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        lh_thproximal:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        lh_thtip:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+      Name: RobotModel
+      Robot Description: /slh/robot_description
+      TF Prefix: ""
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
+  Enabled: true
+  Global Options:
+    Background Color: 48; 48; 48
+    Default Light: true
+    Fixed Frame: camera_link
+    Frame Rate: 30
+  Name: root
+  Tools:
+    - Class: rviz/Interact
+      Hide Inactive Objects: true
+    - Class: rviz/MoveCamera
+    - Class: rviz/Select
+    - Class: rviz/FocusCamera
+    - Class: rviz/Measure
+    - Class: rviz/SetInitialPose
+      Theta std deviation: 0.2617993950843811
+      Topic: /initialpose
+      X std deviation: 0.5
+      Y std deviation: 0.5
+    - Class: rviz/SetGoal
+      Topic: /move_base_simple/goal
+    - Class: rviz/PublishPoint
+      Single click: true
+      Topic: /clicked_point
+  Value: true
+  Views:
+    Current:
+      Class: rviz/Orbit
+      Distance: 0.9540590047836304
+      Enable Stereo Rendering:
+        Stereo Eye Separation: 0.05999999865889549
+        Stereo Focal Distance: 1
+        Swap Stereo Eyes: false
+        Value: false
+      Field of View: 0.7853981852531433
+      Focal Point:
+        X: 0.45328807830810547
+        Y: 0.011445203796029091
+        Z: -0.0566926971077919
+      Focal Shape Fixed Size: true
+      Focal Shape Size: 0.05000000074505806
+      Invert Z Axis: false
+      Name: Current View
+      Near Clip Distance: 0.009999999776482582
+      Pitch: 0.09479668736457825
+      Target Frame: <Fixed Frame>
+      Yaw: 2.8235514163970947
+    Saved: ~
+Window Geometry:
+  Displays:
+    collapsed: false
+  Height: 1563
+  Hide Left Dock: false
+  Hide Right Dock: true
+  Image:
+    collapsed: false
+  QMainWindow State: 000000ff00000000fd0000000400000000000001e3000005c1fc0200000009fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003d00000349000000c900fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000000a0049006d006100670065010000038c000002720000001600ffffff000000010000010f0000057dfc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000003d0000057d000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e1000001970000000300000a000000003efc0100000002fb0000000800540069006d00650200000780000004600000041a000001e0fb0000000800540069006d0065010000000000000450000000000000000000000817000005c100000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Selection:
+    collapsed: false
+  Time:
+    collapsed: false
+  Tool Properties:
+    collapsed: false
+  Views:
+    collapsed: true
+  Width: 2560
+  X: 1920
+  Y: 0

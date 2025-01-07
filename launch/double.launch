@@ -1,0 +1,43 @@
+<launch>
+  <arg name="type" default="double" />
+  <arg name="camera" default="realsense" />
+
+  <include file="$(find mocap_ros)/launch/camera.launch">
+    <arg name="camera" value="$(arg camera)" />
+  </include>
+
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find mocap_ros)/rviz/$(arg type).rviz" required="true" />
+
+  <!-- Right hand Namespace -->
+  <group ns="srh">
+    <param name="robot_description"
+           textfile="$(find robot_models)/srh_float/urdf/srh_float.urdf" />
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" required="true">
+      <param name="publish_frequency" value="120" />
+    </node>
+
+    <node name="tracker" pkg="mocap_ros" type="tracker.py" output="screen">
+      <param name="robot" value="srh_float" />
+      <param name="double" value="true" />
+      <param name="left_hand" value="false" />
+    </node>
+  </group>
+
+  <!-- Left hand Namespace -->
+  <group ns="slh">
+    <param name="robot_description"
+           textfile="$(find robot_models)/slh_float/urdf/slh_float.urdf" />
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" required="true">
+      <param name="publish_frequency" value="120" />
+    </node>
+
+    <node name="tracker" pkg="mocap_ros" type="tracker.py" output="screen">
+      <param name="robot" value="slh_float" />
+      <param name="double" value="true" />
+      <param name="left_hand" value="true" />
+    </node>
+  </group>
+
+</launch>

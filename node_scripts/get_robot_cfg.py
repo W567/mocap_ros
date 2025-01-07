@@ -68,6 +68,25 @@ print("\n")
 print("--- mimic joint names: \n", mimic_joint_names)
 print("--- mimic target joint names: \n", mimic_target_joint_names)
 
+
+urdf_mimic_multiplier = []
+urdf_mimic_offset = []
+for joint in urdf_model.joints:
+    if joint.mimic is not None:
+        urdf_mimic_multiplier.append(joint.mimic.multiplier)
+        urdf_mimic_offset.append(joint.mimic.offset)
+    else:
+        urdf_mimic_multiplier.append(1.0)
+        urdf_mimic_offset.append(0.0)
+
+mimic_multiplier = []
+mimic_offset = []
+for joint_name in mimic_joint_names:
+    index = urdf_joint_names.index(joint_name)
+    mimic_multiplier.append(urdf_mimic_multiplier[index])
+    mimic_offset.append(urdf_mimic_offset[index])
+
+
 mimic_joint_indices = []
 for joint_name in mimic_joint_names:
     index = pin_joint_names.index(joint_name)
@@ -226,6 +245,8 @@ with open(cfg_file_path, "w") as f:
         "pin2urdf_joint_indices": pin2urdf_indices,
         "mimic_joint_indices": mimic_joint_indices,
         "mimic_target_joint_indices": mimic_target_joint_indices,
+        "mimic_multiplier": mimic_multiplier,
+        "mimic_offset": mimic_offset,
         "mano_tip_frames": mano_tip_frames,
         "tip_frames": tip_frames,
         "tip_normals": tip_normals,

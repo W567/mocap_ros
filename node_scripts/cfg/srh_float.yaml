@@ -3,6 +3,8 @@ pin2urdf_joint_indices: [0, 1, 2, 3, 9, 10, 11, 12, 13, 14, 15, 16, 4, 5, 6, 7, 
   17, 18, 19, 20, 21]
 mimic_joint_indices: [3, 12, 16, 8]
 mimic_target_joint_indices: [2, 11, 15, 7]
+mimic_multiplier: [1.0, 1.0, 1.0, 1.0]
+mimic_offset: [0.0, 0.0, 0.0, 0.0]
 mano_tip_frames: [index3, pinky3, middle3, ring3, thumb3]
 tip_frames: [rh_fftip, rh_lftip, rh_mftip, rh_rftip, rh_thtip]
 tip_normals:

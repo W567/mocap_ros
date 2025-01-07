@@ -40,6 +40,8 @@ class OptIK:
             self.tip_frames = cfg["tip_frames"]
             self.mimic_joint_indices = np.array(cfg["mimic_joint_indices"])
             self.mimic_target_joint_indices = np.array(cfg["mimic_target_joint_indices"])
+            self.mimic_multiplier = np.array(cfg["mimic_multiplier"])
+            self.mimic_offset = np.array(cfg["mimic_offset"])
             self.col_frame_pairs = cfg["col_frame_pairs"]
             self.tip_normals = np.array(cfg["tip_normals"])[..., np.newaxis]
 
@@ -135,7 +137,7 @@ class OptIK:
         def objective(x: np.ndarray, grad: np.ndarray) -> float:
             qpos = x.copy()
             # Set the mimic joints to the previous joint angles
-            qpos[self.mimic_joint_indices] = qpos[self.mimic_target_joint_indices]
+            qpos[self.mimic_joint_indices] = qpos[self.mimic_target_joint_indices] * self.mimic_multiplier + self.mimic_offset
             self.forward_kinematics(qpos)
 
             ## Position distance =======================================================================================
@@ -300,7 +302,7 @@ class OptIK:
         try:
             res = self.opt.optimize(self.last_qpos)
             # Set the mimic joints to the previous joint angles
-            res[self.mimic_joint_indices] = res[self.mimic_target_joint_indices]
+            res[self.mimic_joint_indices] = res[self.mimic_target_joint_indices] * self.mimic_multiplier + self.mimic_offset
             self.last_qpos = res
 
             return res[self.pin2urdf_joint_indices]

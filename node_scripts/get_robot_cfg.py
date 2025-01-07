@@ -228,8 +228,8 @@ if not hand2mano:
 
 if not robot_base_links:
     print(f"{bcolors.OKYELLOW}[Warning] Robot base links are not defined in the configuration\n"
-          f"Please fill in the robot_base_links with the root frame names of the each finger of robot\n{bcolors.ENDC}, "
-          f"with same finger order as mano_base_links")
+          f"Please fill in the robot_base_links with the root frame names of the each finger of robot\n, "
+          f"with same finger order as mano_base_links{bcolors.ENDC}")
 
 if not tip_normals:
     print(f"{bcolors.OKYELLOW}[Warning] Tip normals are not defined in the configuration\n"

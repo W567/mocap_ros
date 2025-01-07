@@ -40,11 +40,16 @@ for joint in urdf_model.joints:
         mimic_joint_names.append(joint.name)
         mimic_target_joint_names.append(joint.mimic.joint)
 
-if 'srh' in args.robot or 'slh' in args.robot:
+if 'srh' in args.robot:
     print(f"{bcolors.OKYELLOW}[Warning] Using default mimic joint names for Shadow hand."
           f"(Since not defined in URDF){bcolors.ENDC}")
     mimic_joint_names = ["rh_FFJ1", "rh_MFJ1", "rh_RFJ1", "rh_LFJ1"]
     mimic_target_joint_names = ["rh_FFJ2", "rh_MFJ2", "rh_RFJ2", "rh_LFJ2"]
+elif 'slh' in args.robot:
+    print(f"{bcolors.OKYELLOW}[Warning] Using default mimic joint names for Shadow hand."
+          f"(Since not defined in URDF){bcolors.ENDC}")
+    mimic_joint_names = ["lh_FFJ1", "lh_MFJ1", "lh_RFJ1", "lh_LFJ1"]
+    mimic_target_joint_names = ["lh_FFJ2", "lh_MFJ2", "lh_RFJ2", "lh_LFJ2"]
 
 print(urdf_joint_names)
 

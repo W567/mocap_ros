@@ -26,6 +26,7 @@ class Tracker(OptIK):
     def __init__(self):
         rospy.init_node('tracker', anonymous=True)
 
+        robot = rospy.get_param('~robot', 'srh_float')
         tol = rospy.get_param('~tol', 1e-4)
         collision_threshold = rospy.get_param('~collision_threshold', 0.018)
         nor_weight = rospy.get_param('~nor_weight', 0.01)
@@ -35,6 +36,7 @@ class Tracker(OptIK):
 
         OptIK.__init__(
             self,
+            robot=robot,
             tol=tol,
             nor_weight=nor_weight,
             col_weight=col_weight,

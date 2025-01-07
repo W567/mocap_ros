@@ -141,7 +141,10 @@ class OptIK:
         def objective(x: np.ndarray, grad: np.ndarray) -> float:
             qpos = x.copy()
             # Set the mimic joints to the previous joint angles
-            qpos[self.mimic_joint_indices] = qpos[self.mimic_target_joint_indices] * self.mimic_multiplier + self.mimic_offset
+            if self.mimic_joint_indices:
+                qpos[self.mimic_joint_indices] = (
+                        qpos[self.mimic_target_joint_indices] * self.mimic_multiplier + self.mimic_offset
+                )
             self.forward_kinematics(qpos)
 
             ## Position distance =======================================================================================
@@ -306,7 +309,10 @@ class OptIK:
         try:
             res = self.opt.optimize(self.last_qpos)
             # Set the mimic joints to the previous joint angles
-            res[self.mimic_joint_indices] = res[self.mimic_target_joint_indices] * self.mimic_multiplier + self.mimic_offset
+            if self.mimic_joint_indices:
+                res[self.mimic_joint_indices] = (
+                        res[self.mimic_target_joint_indices] * self.mimic_multiplier + self.mimic_offset
+                )
             res = np.clip(res, self.model.lowerPositionLimit, self.model.upperPositionLimit)
             self.last_qpos = res
 

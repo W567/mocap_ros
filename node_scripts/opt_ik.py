@@ -292,8 +292,8 @@ class OptIK:
 
 
     def optimize(self):
-        desired_positions = np.array([self.index_pos, self.pinky_pos, self.middle_pos, self.ring_pos, self.thumb_pos])
-        desired_normals = np.array([self.index_nor, self.pinky_nor, self.middle_nor, self.ring_nor, self.thumb_nor])
+        desired_positions = np.array([getattr(self, pos_name) for pos_name in self.tip_pos_vars])
+        desired_normals = np.array([getattr(self, nor_name) for nor_name in self.tip_nor_vars])
 
         # Set objective function
         self.opt.set_min_objective(

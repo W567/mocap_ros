@@ -1,12 +1,18 @@
 #!/usr/bin/env python
+import os
+import yaml
 import torch
 import nlopt
 import numpy as np
 import pinocchio as pin
 
+import rospkg
+ros_package = rospkg.RosPack()
+
 
 class OptIK:
     def __init__(self,
+                 robot="srh_float",
                  tol=1e-4,
                  nor_weight=0.01,
                  col_weight=1.0,
@@ -21,90 +27,50 @@ class OptIK:
         self.col_weight = col_weight
         self.collision_threshold = collision_threshold
 
-        for finger in ["thu", "ind", "mid", "rin", "lit"]:
+        # Load the robot model
+        self.model = pin.buildModelFromUrdf(ros_package.get_path("robot_models") + f"/{robot}/urdf/{robot}.urdf")
+        self.data = self.model.createData()
+
+        current_path = os.path.dirname(os.path.realpath(__file__))
+        cfg_file_path = os.path.join(current_path, "cfg", f"{robot}.yaml")
+        with open(cfg_file_path, "r") as f:
+            cfg = yaml.load(f, Loader=yaml.SafeLoader)
+            self.total_joints = cfg["total_joints"]
+            self.pin2urdf_joint_indices = cfg["pin2urdf_joint_indices"]
+            self.tip_frames = cfg["tip_frames"]
+            self.mimic_joint_indices = np.array(cfg["mimic_joint_indices"])
+            self.mimic_target_joint_indices = np.array(cfg["mimic_target_joint_indices"])
+            self.col_frame_pairs = cfg["col_frame_pairs"]
+
+        num_fingers = len(self.tip_frames)
+        assert num_fingers <= 5, "Too many fingers, only support up to 5 fingers"
+        finger_name_prefixes = ["thu", "ind", "mid", "rin", "lit"]
+        for finger in finger_name_prefixes[:num_fingers]:
             setattr(self, f"{finger}_pos", np.zeros(3))
             setattr(self, f"{finger}_nor", np.zeros(3))
 
-        # Load the robot model
-        self.model = pin.buildModelFromUrdf("/home/wu/catkin_ws/src/mine/robot_models/srh_float/urdf/srh_float.urdf")
-        self.data = self.model.createData()
-
         lower_limits = []
         upper_limits = []
-        for joint_id in range(1, self.model.njoints):
-            lower_limit = self.model.lowerPositionLimit[joint_id - 1]
-            upper_limit = self.model.upperPositionLimit[joint_id - 1]
+        for joint_id in range(self.total_joints):
+            lower_limit = self.model.lowerPositionLimit[joint_id]
+            upper_limit = self.model.upperPositionLimit[joint_id]
             lower_limits.append(lower_limit)
             upper_limits.append(upper_limit)
 
-        self.total_joint_angles = 22
-        self.tip_frames = ["rh_fftip", "rh_lftip", "rh_mftip", "rh_rftip", "rh_thtip"]
-        self.mimic_joint_ids = np.array([3, 8, 12, 16])
-
         # Optimization
-        self.opt = nlopt.opt(nlopt.LD_LBFGS, self.total_joint_angles)
+        self.opt = nlopt.opt(nlopt.LD_LBFGS, self.total_joints)
         self.opt.set_lower_bounds(lower_limits)
         self.opt.set_upper_bounds(upper_limits)
         # Set stopping criteria
         self.opt.set_xtol_rel(tol)
 
         # Last(Initial) guess for joint angles (zeros or some reasonable starting guess)
-        self.last_qpos = np.zeros(self.total_joint_angles)
+        self.last_qpos = np.zeros(self.total_joints)
         self.last_qpos = np.clip(self.last_qpos, lower_limits, upper_limits)
 
-        self.pin2real = [0, 1, 2, 3,         # index
-                         9, 10, 11, 12,      # middle
-                        13, 14, 15, 16,      # ring
-                         4, 5, 6, 7, 8,      # little
-                        17, 18, 19, 20, 21]  # thumb
-
         if self.with_collision:
-            self.col_frame_pairs = \
-                [
-                    # # Tip <-> Tip
-                    # ("rh_fftip", "rh_mftip"),
-                    # ("rh_mftip", "rh_rftip"),
-                    ("rh_rftip", "rh_lftip"),
-                    # Distal <-> Distal
-                    ("rh_ffdistal", "rh_mfdistal"),
-                    ("rh_mfdistal", "rh_rfdistal"),
-                    ("rh_rfdistal", "rh_lfdistal"),
-                    # # Tip <-> Distal
-                    # ("rh_fftip", "rh_mfdistal"),
-                    # ("rh_mftip", "rh_rfdistal"),
-                    # ("rh_rftip", "rh_lfdistal"),
-                    # # Distal <-> Tip
-                    # ("rh_ffdistal", "rh_mftip"),
-                    # ("rh_mfdistal", "rh_rftip"),
-                    # ("rh_rfdistal", "rh_lftip"),
-                    # Middle <-> Middle
-                    ("rh_ffmiddle", "rh_mfmiddle"),
-                    ("rh_mfmiddle", "rh_rfmiddle"),
-                    ("rh_rfmiddle", "rh_lfmiddle"),
-                    # Middle <-> Distal
-                    ("rh_ffmiddle", "rh_mfdistal"),
-                    ("rh_mfmiddle", "rh_rfdistal"),
-                    ("rh_rfmiddle", "rh_lfdistal"),
-                    # Distal <-> Middle
-                    ("rh_ffdistal", "rh_mfmiddle"),
-                    ("rh_mfdistal", "rh_rfmiddle"),
-                    ("rh_rfdistal", "rh_lfmiddle"),
-
-                    # lfproximal
-                    ("rh_lfproximal", "rh_rfmiddle"),
-                    ("rh_lfproximal", "rh_rfproximal"),
-
-                    # Thumb
-                    ("rh_thdistal", "rh_ffmiddle"),
-                    ("rh_thdistal", "rh_mfmiddle"),
-                    ("rh_thdistal", "rh_rfmiddle"),
-                    ("rh_thdistal", "rh_lfmiddle"),
-                    # ("rh_thmiddle", "rh_ffmiddle"),
-                    # ("rh_thmiddle", "rh_mfmiddle"),
-                    # ("rh_thmiddle", "rh_rfmiddle"),
-                    # ("rh_thmiddle", "rh_lfmiddle"),
-                ]
-
+            self.col_frame_pairs = np.array(self.col_frame_pairs)
+            assert self.col_frame_pairs.shape[1] == 2, "Invalid collision frame pairs shape, should be (n, 2)"
             self.col_frame_pair_indices = [(self.model.getFrameId(frame1, pin.BODY), self.model.getFrameId(frame2, pin.BODY))
                                            for frame1, frame2 in self.col_frame_pairs]
             self.col_frame_pair_indices = np.array(self.col_frame_pair_indices)
@@ -167,7 +133,7 @@ class OptIK:
         def objective(x: np.ndarray, grad: np.ndarray) -> float:
             qpos = x.copy()
             # Set the mimic joints to the previous joint angles
-            qpos[self.mimic_joint_ids] = qpos[self.mimic_joint_ids - 1]
+            qpos[self.mimic_joint_indices] = qpos[self.mimic_target_joint_indices]
             self.forward_kinematics(qpos)
 
             ## Position distance =======================================================================================
@@ -270,7 +236,7 @@ class OptIK:
                         grad_qpos += grad_frame_qpos * self.col_weight
                 ## Calculate the gradient for the collision cost =======================================================
 
-                for mimic_id in self.mimic_joint_ids:
+                for mimic_id in self.mimic_joint_indices:
                     grad_qpos[mimic_id] = 0  # Mimic joints don’t contribute to the optimization gradient
 
                 grad[:] = grad_qpos[:]
@@ -332,14 +298,14 @@ class OptIK:
         try:
             res = self.opt.optimize(self.last_qpos)
             # Set the mimic joints to the previous joint angles
-            res[self.mimic_joint_ids] = res[self.mimic_joint_ids - 1]
+            res[self.mimic_joint_indices] = res[self.mimic_target_joint_indices]
             self.last_qpos = res
 
-            return res[self.pin2real]
+            return res[self.pin2urdf_joint_indices]
         except Exception as e:
             if self.verbose:
                 print(f"Optimization failed: {e}")
-            return self.last_qpos[self.pin2real]
+            return self.last_qpos[self.pin2urdf_joint_indices]
 
 
 if __name__ == '__main__':

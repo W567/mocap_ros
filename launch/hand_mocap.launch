@@ -17,7 +17,7 @@
   <arg name="wrist_a" default="0.03" /> <!-- length of cross section ellipse of the wrist (meter) -->
   <arg name="wrist_b" default="0.0225" />
   <arg name="arrow" default="true" /> <!-- visualize arrow for tip direction -->
-  <arg name="wrist_ema_alpha" default="0.1" /> <!-- alpha for EMA filter for wrist position -->
+  <arg name="wrist_ema_alpha" default="0.1" /> <!-- EMA alpha for wrist position (without ema: 1.0, all history: 0.0) -->
 
   <group if="$(eval camera_type == 'kinect')">
     <arg name="input_image" default="/kinect_head/rgb/image_rect_color"/>

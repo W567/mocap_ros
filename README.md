@@ -1,6 +1,6 @@
 # mocap_ros 
 
-ROS1 wrapper package for motion capture with [hand_object_detector](https://github.com/ddshan/hand_object_detector.git), [frankmocap](https://github.com/facebookresearch/frankmocap.git), [HaMeR](https://github.com/geopavlakos/hamer.git) and [4D-Humans](https://github.com/shubham-goel/4D-Humans.git).
+ROS1 wrapper package for motion capture with [hand_object_detector](https://github.com/ddshan/hand_object_detector.git), [frankmocap](https://github.com/facebookresearch/frankmocap.git), [HaMeR](https://github.com/geopavlakos/hamer.git), [4D-Humans](https://github.com/shubham-goel/4D-Humans.git) and [WiLoR](https://github.com/rolpotamias/WiLoR/tree/main).
 
 ![Alt text](asset/mocap_example.gif)
 
@@ -15,7 +15,7 @@ This package is build upon
 ### Build package
 
 #### on your workspace
-It is better to use docker environment cause it needs specific cuda version and build environment.
+It is better to use docker environment because it needs specific cuda version and build environment.
 ```bash
 mkdir -p ~/ros/catkin_ws/src && cd ~/ros/catkin_ws/src
 git clone https://github.com/ojh6404/mocap_ros.git
@@ -92,5 +92,7 @@ add rostest and docker build test.
 Use camera_type to choose which camera to use. (astra or realsense or kinect)
 Corresponding topics are set in the launch file based on the camera type.
 ```bash
-/run_docker -host localhost -launch hand_mocap.launch camera_type:=astra detector_model:=mediapipe_hand visualize:=false with_mocap:=true threshold:=0.95 margin:=20
+./run_docker -host localhost -launch hand_mocap.launch camera_type:=astra detector_model:=mediapipe_hand visualize:=false with_mocap:=true threshold:=0.95 margin:=20
+# Use -cuda to choose which gpu to use
+./run_docker -cuda 3 -launch hand_mocap.launch camera_type:=realsense visualize:=false mocap_model:=wilor
 ```

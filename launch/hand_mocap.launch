@@ -2,6 +2,7 @@
   <arg name="camera_type" default="realsense" /> <!-- kinect, realsense, astra -->
   <arg name="camera_id" default="0" /> <!-- camera device id for usb camera -->
   <arg name="device" default="cuda:0" /> <!-- cpu or cuda -->
+  <arg name="namespace" default="/" />
 
   <arg name="with_mocap" default="true" />
   <arg name="detector_model" default="yolo_hand" />  <!-- hand_object_detector, mediapipe_hand, yolo_hand, ... -->
@@ -20,7 +21,7 @@
   <arg name="arrow" default="true" /> <!-- visualize arrow for tip direction -->
   <arg name="wrist_ema_alpha" default="0.1" /> <!-- EMA alpha for wrist position (without ema: 1.0, all history: 0.0) -->
 
-  <group if="$(eval camera_type == 'kinect')">
+  <group if="$(eval camera_type == 'kinect')" ns="$(arg namespace)">
     <arg name="input_image" default="/kinect_head/rgb/image_rect_color"/>
     <arg name="input_depth" default="/kinect_head/depth_registered/image_rect"/>
     <arg name="camera_info" default="/kinect_head/rgb/camera_info"/>
@@ -62,7 +63,7 @@
     </node>
   </group>
 
-  <group if="$(eval camera_type == 'realsense')">
+  <group if="$(eval camera_type == 'realsense')" ns="$(arg namespace)">
     <arg name="input_image" default="/camera/color/image_rect_color"/>
     <arg name="input_depth" default="/camera/aligned_depth_to_color/image_raw"/>
     <arg name="camera_info" default="/camera/color/camera_info"/>
@@ -92,7 +93,7 @@
     </node>
   </group>
 
-  <group if="$(eval camera_type == 'astra')">
+  <group if="$(eval camera_type == 'astra')" ns="$(arg namespace)">
     <arg name="input_image" default="/camera/color/image_raw"/>
     <arg name="input_depth" default="/camera/depth/image_raw"/>
     <arg name="camera_info" default="/camera/color/camera_info"/>
@@ -122,7 +123,7 @@
     </node>
   </group>
 
-  <group if="$(eval camera_type == 'usb')">
+  <group if="$(eval camera_type == 'usb')" ns="$(arg namespace)">
     <arg name="input_image" default="$(eval '/usb_cam' + str(arg('camera_id')) + '/image_raw')"/>
     <arg name="input_depth" default="none"/>
     <arg name="camera_info" default="$(eval '/usb_cam' + str(arg('camera_id')) + '/camera_info')"/>

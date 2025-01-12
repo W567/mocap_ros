@@ -15,6 +15,12 @@ def create_arrow_array():
     root_frame = rospy.get_param("root_frame", "camera_link")
     rate = rospy.Rate(rate_num)
 
+    namespace = rospy.get_namespace()
+    if namespace == '/':
+        namespace = ''
+    elif namespace[-1] != '/':
+        namespace += '/'
+
     frame_names = [
         "right_hand/index3",
         "right_hand/middle3",
@@ -27,6 +33,7 @@ def create_arrow_array():
         "left_hand/ring3",
         "left_hand/thumb3"
     ]
+    frame_names = [namespace + name for name in frame_names]
 
     start_point = Point(x=0.0, y=0.0, z=0.0)
 

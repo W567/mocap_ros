@@ -54,6 +54,12 @@ class DetectionNode(object):
         self.prev_left_wrist = None
         self.prev_right_wrist = None
 
+        self.namespace = rospy.get_namespace()
+        if self.namespace == "/":
+            self.namespace = ""
+        elif self.namespace[-1] != "/":
+            self.namespace += "/"
+
         if self.publish_tf:
             self.tf_broadcaster = tf.TransformBroadcaster()
 
@@ -352,7 +358,7 @@ class DetectionNode(object):
                             mocap.pose.orientation.w,
                         ),
                         rospy.Time.now(),
-                        mocap.detection.label + "/" + self.keypoint_names[0],
+                        self.namespace + mocap.detection.label + "/" + self.keypoint_names[0],
                         msg.header.frame_id,
                     )
                     # publish finger bone pose in the camera frame
@@ -406,8 +412,8 @@ class DetectionNode(object):
                             parent_to_child,
                             parent_to_child_quat,
                             rospy.Time.now(),
-                            mocap.detection.label + "/" + child_name,
-                            mocap.detection.label + "/" + parent_name,
+                            self.namespace + mocap.detection.label + "/" + child_name,
+                            self.namespace + mocap.detection.label + "/" + parent_name,
                         )
                 except (
                     tf.LookupException,

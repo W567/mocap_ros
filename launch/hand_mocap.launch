@@ -1,5 +1,6 @@
 <launch>
   <arg name="camera_type" default="realsense" /> <!-- kinect, realsense, astra -->
+  <arg name="camera_id" default="0" /> <!-- camera device id for usb camera -->
   <arg name="device" default="cuda:0" /> <!-- cpu or cuda -->
 
   <arg name="with_mocap" default="true" />
@@ -95,6 +96,36 @@
     <arg name="input_image" default="/camera/color/image_raw"/>
     <arg name="input_depth" default="/camera/depth/image_raw"/>
     <arg name="camera_info" default="/camera/color/camera_info"/>
+    <!-- hand_detection node -->
+    <node name="detection_node"
+        pkg="mocap_ros" type="detection_node.py"
+        output="screen" >
+    <remap from="~input_image" to="$(arg input_image)" />
+    <remap from="~input_depth" to="$(arg input_depth)" />
+    <remap from="~camera_info" to="$(arg camera_info)" />
+    <rosparam subst_value="true" >
+        device: $(arg device)
+        publish_tf: $(arg publish_tf)
+        threshold: $(arg threshold)
+        with_mocap: $(arg with_mocap)
+        detector_model: $(arg detector_model)
+        mocap_model: $(arg mocap_model)
+        visualize: $(arg visualize)
+        render_type: $(arg render_type)
+        rescale_factor: $(arg rescale_factor)
+        margin: $(arg margin)
+        scale: $(arg depth_scale)
+        wrist_a: $(arg wrist_a)
+        wrist_b: $(arg wrist_b)
+        wrist_ema_alpha: $(arg wrist_ema_alpha)
+    </rosparam>
+    </node>
+  </group>
+
+  <group if="$(eval camera_type == 'usb')">
+    <arg name="input_image" default="$(eval '/usb_cam' + str(arg('camera_id')) + '/image_raw')"/>
+    <arg name="input_depth" default="none"/>
+    <arg name="camera_info" default="$(eval '/usb_cam' + str(arg('camera_id')) + '/camera_info')"/>
     <!-- hand_detection node -->
     <node name="detection_node"
         pkg="mocap_ros" type="detection_node.py"

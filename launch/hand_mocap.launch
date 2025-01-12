@@ -153,5 +153,7 @@
     </node>
   </group>
 
-  <node name="tip_arrow" pkg="mocap_ros" type="tip_arrow.py" output="screen" if="$(eval arrow)" />
+  <group ns="$(arg namespace)">
+    <node name="tip_arrow" pkg="mocap_ros" type="tip_arrow.py" output="screen" if="$(eval arrow)" />
+  </group>
 </launch>
